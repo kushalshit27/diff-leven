@@ -10,5 +10,5 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["src", "test"]
 }
