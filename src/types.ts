@@ -21,6 +21,16 @@ export interface DiffOptions {
    * Always output these keys for objects with differences
    */
   outputKeys?: string[];
+
+  /**
+   * Skip specified keys when comparing objects
+   */
+  ignoreKeys?: string[];
+
+  /**
+   * Ignore differences in values, focus only on structure (default: false)
+   */
+  ignoreValues?: boolean;
 }
 
 /**

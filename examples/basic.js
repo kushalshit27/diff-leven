@@ -1,21 +1,25 @@
 // Examples for diff-leven
 
 // Import the library
-const diffLeven = require('../dist');
+const { diff, diffString } = require('../dist');
+
+// ==========================================
+// Basic Usage Examples
+// ==========================================
 
 // Simple object diff
 const obj1 = { foo: 'bar', count: 42 };
 const obj2 = { foo: 'baz', count: 42 };
 
 console.log('=== Object diff ===');
-console.log(diffLeven.diffString(obj1, obj2));
+console.log(diffString(obj1, obj2));
 
 // Array diff
 const arr1 = [1, 2, 3, 4];
 const arr2 = [1, 2, 5, 4];
 
 console.log('\n=== Array diff ===');
-console.log(diffLeven.diffString(arr1, arr2));
+console.log(diffString(arr1, arr2));
 
 // Nested object diff
 const nested1 = {
@@ -23,9 +27,9 @@ const nested1 = {
     name: 'Alice',
     details: {
       age: 30,
-      location: 'New York'
-    }
-  }
+      location: 'New York',
+    },
+  },
 };
 
 const nested2 = {
@@ -33,29 +37,96 @@ const nested2 = {
     name: 'Alice',
     details: {
       age: 31,
-      location: 'Boston'
-    }
-  }
+      location: 'Boston',
+    },
+  },
 };
 
 console.log('\n=== Nested object diff ===');
-console.log(diffLeven.diffString(nested1, nested2));
+console.log(diffString(nested1, nested2));
 
-// Using keysOnly option
+// ==========================================
+// Option Examples
+// ==========================================
+
+// Using keysOnly option - only compare object structure, ignoring values
 const structure1 = { a: 1, b: { c: 2, d: 3 } };
 const structure2 = { a: 100, b: { c: 200 }, e: 4 };
 
 console.log('\n=== Keys only diff ===');
-console.log(diffLeven.diffString(structure1, structure2, { keysOnly: true }));
+console.log(diffString(structure1, structure2, { keysOnly: true }));
 
-// Using full option
+// Using full option - show the entire object tree, not just differences
 console.log('\n=== Full output diff ===');
-console.log(diffLeven.diffString(obj1, obj2, { full: true }));
+console.log(diffString(obj1, obj2, { full: true }));
 
-// Using outputKeys option
+// Using outputKeys option - always include specified keys in output for objects with differences
 console.log('\n=== Output specific keys ===');
-console.log(diffLeven.diffString(obj1, obj2, { outputKeys: ['count'] }));
+console.log(diffString(obj1, obj2, { outputKeys: ['count'] }));
 
-// Raw diff output
+// Using ignoreKeys option (new) - skip specified keys when comparing objects
+const userData1 = { name: 'John', age: 30, timestamp: Date.now() };
+const userData2 = { name: 'Jane', age: 25, timestamp: Date.now() + 1000 };
+
+console.log('\n=== Ignore keys diff ===');
+console.log(diffString(userData1, userData2, { ignoreKeys: ['timestamp'] }));
+
+// Using ignoreValues option (new) - ignore differences in values, focus only on structure
+console.log('\n=== Ignore values diff ===');
+console.log(diffString(userData1, userData2, { ignoreValues: true }));
+
+// Combining multiple options
+console.log('\n=== Combined options diff ===');
+console.log(
+  diffString(userData1, userData2, {
+    ignoreKeys: ['timestamp'],
+    outputKeys: ['name'],
+    color: false,
+  }),
+);
+
+// Raw diff output (JavaScript object instead of formatted string)
 console.log('\n=== Raw diff output ===');
-console.log(JSON.stringify(diffLeven.diff(obj1, obj2), null, 2));
+console.log(JSON.stringify(diff(obj1, obj2), null, 2));
+
+// ==========================================
+// Real-world Examples
+// ==========================================
+
+// Configuration file comparison (ignoring sensitive values)
+const config1 = {
+  server: {
+    port: 3000,
+    host: 'localhost',
+    credentials: {
+      username: 'admin',
+      password: 'secret123',
+    },
+  },
+  database: {
+    url: 'mongodb://localhost:27017',
+    name: 'myapp',
+  },
+};
+
+const config2 = {
+  server: {
+    port: 8080,
+    host: 'localhost',
+    credentials: {
+      username: 'admin',
+      password: 'different-secret',
+    },
+  },
+  database: {
+    url: 'mongodb://localhost:27017',
+    name: 'myapp-dev',
+  },
+};
+
+console.log('\n=== Configuration comparison (ignoring credentials) ===');
+console.log(
+  diffString(config1, config2, {
+    ignoreKeys: ['password', 'username'],
+  }),
+);

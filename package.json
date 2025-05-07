@@ -15,7 +15,8 @@
     "format": "npm run format:check && npm run format:fix",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
-    "test": "vitest"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "repository": {
     "type": "git",

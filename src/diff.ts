@@ -60,7 +60,7 @@ function calculateSimilarity(a: any, b: any): number {
   if (typeA === 'string') {
     const distance = leven(a, b);
     const maxLength = Math.max(a.length, b.length);
-    return maxLength === 0 ? 1 : 1 - (distance / maxLength);
+    return maxLength === 0 ? 1 : 1 - distance / maxLength;
   }
 
   // Handle numbers
@@ -68,7 +68,7 @@ function calculateSimilarity(a: any, b: any): number {
     // Normalize numbers to 0-1 range for comparison
     const max = Math.max(Math.abs(a), Math.abs(b));
     if (max === 0) return 1; // Both are 0
-    return 1 - (Math.abs(a - b) / (max * 2));
+    return 1 - Math.abs(a - b) / (max * 2);
   }
 
   // Handle booleans
@@ -117,7 +117,7 @@ function calculateSimilarity(a: any, b: any): number {
     }
 
     // Calculate key overlap similarity
-    const commonKeyCount = keysA.filter(key => keysB.includes(key)).length;
+    const commonKeyCount = keysA.filter((key) => keysB.includes(key)).length;
     const keyOverlapSimilarity = commonKeyCount / allKeys.length;
 
     return (totalSimilarity / allKeys.length) * keyOverlapSimilarity;
@@ -151,7 +151,11 @@ function findBestMatch(item: any, array: any[]): [number, number] {
 /**
  * Compare two arrays and generate diff result
  */
-function diffArrays(oldArray: any[], newArray: any[], options: DiffOptions): DiffResult {
+function diffArrays(
+  oldArray: any[],
+  newArray: any[],
+  options: DiffOptions,
+): DiffResult {
   if (oldArray.length === 0 && newArray.length === 0) return [];
 
   // Fast path for identical arrays
@@ -168,7 +172,11 @@ function diffArrays(oldArray: any[], newArray: any[], options: DiffOptions): Dif
     const [bestMatchIndex, similarity] = findBestMatch(oldItem, newArray);
 
     // If good match found and not already matched
-    if (bestMatchIndex >= 0 && similarity > 0.7 && !matchedIndices.has(bestMatchIndex)) {
+    if (
+      bestMatchIndex >= 0 &&
+      similarity > 0.7 &&
+      !matchedIndices.has(bestMatchIndex)
+    ) {
       matchedIndices.add(bestMatchIndex);
 
       // Compare the matched items
@@ -194,7 +202,11 @@ function diffArrays(oldArray: any[], newArray: any[], options: DiffOptions): Dif
 /**
  * Compare two objects and generate diff result
  */
-function diffObjects(oldObj: Record<string, any>, newObj: Record<string, any>, options: DiffOptions): DiffResult {
+function diffObjects(
+  oldObj: Record<string, any>,
+  newObj: Record<string, any>,
+  options: DiffOptions,
+): DiffResult {
   const keysOnly = options.keysOnly === true;
   const fullOutput = options.full === true;
   const outputKeys = options.outputKeys || [];
@@ -282,7 +294,11 @@ function diffValues(oldValue: any, newValue: any, options: DiffOptions): any {
 /**
  * Generate a diff between two values
  */
-export function diff(oldValue: any, newValue: any, options: DiffOptions = {}): DiffResult {
+export function diff(
+  oldValue: any,
+  newValue: any,
+  options: DiffOptions = {},
+): DiffResult {
   const result = diffValues(oldValue, newValue, options);
 
   // If no differences found, return empty object

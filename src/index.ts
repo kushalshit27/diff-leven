@@ -1,6 +1,8 @@
-import { diff as diffImpl } from './diff';
-import { diffToString } from './formatters';
-import type { DiffOptions, DiffResult } from './types';
+import { DiffEngine } from './core/DiffEngine';
+import { DiffOptions, DiffResult } from './types';
+
+// Create a single instance of the DiffEngine to reuse
+const diffEngine = new DiffEngine();
 
 /**
  * Compare two values (objects, arrays, primitives) and return their differences
@@ -18,8 +20,12 @@ import type { DiffOptions, DiffResult } from './types';
  * // result: { foo: { __old: 'bar', __new: 'baz' } }
  * ```
  */
-export function diff(oldValue: any, newValue: any, options: DiffOptions = {}): DiffResult {
-  return diffImpl(oldValue, newValue, options);
+export function diff(
+  oldValue: any,
+  newValue: any,
+  options: DiffOptions = {},
+): DiffResult {
+  return diffEngine.diff(oldValue, newValue, options);
 }
 
 /**
@@ -42,9 +48,12 @@ export function diff(oldValue: any, newValue: any, options: DiffOptions = {}): D
  * // }
  * ```
  */
-export function diffString(oldValue: any, newValue: any, options: DiffOptions = {}): string {
-  const result = diffImpl(oldValue, newValue, options);
-  return diffToString(oldValue, newValue, result, options);
+export function diffString(
+  oldValue: any,
+  newValue: any,
+  options: DiffOptions = {},
+): string {
+  return diffEngine.diffToString(oldValue, newValue, options);
 }
 
 // Re-export types

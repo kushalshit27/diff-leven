@@ -27,7 +27,7 @@ function formatValue(value: any): string {
 export function formatDiff(
   diffResult: DiffResult,
   indent = 0,
-  options: DiffOptions = {}
+  options: DiffOptions = {},
 ): string {
   const useColor = options.color !== false;
   const indentation = '  '.repeat(indent);
@@ -40,14 +40,13 @@ export function formatDiff(
     if (useColor) {
       return [
         `${indentation}${colors.red}- ${oldValue}${colors.reset}`,
-        `${indentation}${colors.green}+ ${newValue}${colors.reset}`
+        `${indentation}${colors.green}+ ${newValue}${colors.reset}`,
       ].join('\n');
     }
 
-    return [
-      `${indentation}- ${oldValue}`,
-      `${indentation}+ ${newValue}`
-    ].join('\n');
+    return [`${indentation}- ${oldValue}`, `${indentation}+ ${newValue}`].join(
+      '\n',
+    );
   }
 
   // Handle objects/arrays
@@ -58,14 +57,18 @@ export function formatDiff(
   lines.push(`${indentation}${isArray ? '[' : '{'}`);
 
   // Process each key/index
-  Object.keys(diffResult).forEach(key => {
+  Object.keys(diffResult).forEach((key) => {
     const value = diffResult[key];
 
     // Skip internal properties
     if (key === '__old' || key === '__new') return;
 
     // Process nested diff result
-    if (typeof value === 'object' && value !== null && (value.__old !== undefined || value.__new !== undefined)) {
+    if (
+      typeof value === 'object' &&
+      value !== null &&
+      (value.__old !== undefined || value.__new !== undefined)
+    ) {
       const propName = isArray ? '' : `${key}: `;
 
       if ('__old' in value && '__new' in value) {
@@ -74,25 +77,34 @@ export function formatDiff(
         const newValue = formatValue(value.__new);
 
         if (useColor) {
-          lines.push(`${indentation}  ${colors.red}- ${propName}${oldValue}${colors.reset}`);
-          lines.push(`${indentation}  ${colors.green}+ ${propName}${newValue}${colors.reset}`);
+          lines.push(
+            `${indentation}  ${colors.red}- ${propName}${oldValue}${colors.reset}`,
+          );
+          lines.push(
+            `${indentation}  ${colors.green}+ ${propName}${newValue}${colors.reset}`,
+          );
         } else {
           lines.push(`${indentation}  - ${propName}${oldValue}`);
           lines.push(`${indentation}  + ${propName}${newValue}`);
         }
       } else {
         // Nested object with changes
-        lines.push(`${indentation}  ${propName}${formatDiff(value, indent + 1, options)}`);
+        lines.push(
+          `${indentation}  ${propName}${formatDiff(value, indent + 1, options)}`,
+        );
       }
     } else {
       // Unchanged property
       const propName = isArray ? '' : `${key}: `;
-      const formattedValue = typeof value === 'object' && value !== null
-        ? formatDiff(value, indent + 1, options)
-        : formatValue(value);
+      const formattedValue =
+        typeof value === 'object' && value !== null
+          ? formatDiff(value, indent + 1, options)
+          : formatValue(value);
 
       if (useColor) {
-        lines.push(`${indentation}  ${colors.dim}${propName}${formattedValue}${colors.reset}`);
+        lines.push(
+          `${indentation}  ${colors.dim}${propName}${formattedValue}${colors.reset}`,
+        );
       } else {
         lines.push(`${indentation}  ${propName}${formattedValue}`);
       }
@@ -112,7 +124,7 @@ export function diffToString(
   oldObj: any,
   newObj: any,
   diffResult: DiffResult,
-  options: DiffOptions = {}
+  options: DiffOptions = {},
 ): string {
   return formatDiff(diffResult, 0, options);
 }
