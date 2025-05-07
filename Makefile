@@ -9,10 +9,10 @@ all: clean init build test
 
 init:
 	@echo "Initializing the project..."
-	npm install
+	npm ci
 
 clean:
-	@echo "Cleaning the build directory..."
+	@echo "Cleaning the directory..."
 	rm -rf node_modules dist
 
 test:
@@ -22,3 +22,14 @@ test:
 build:
 	@echo "Building the project..."
 	npm run build
+
+format:
+	@echo "Running format..."
+	npm run format
+	@echo "Formatting completed."
+
+lint: format
+	@echo "Running linter..."
+	npm run lint
+	@echo "Linting completed."
+
