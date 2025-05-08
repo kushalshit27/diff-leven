@@ -16,7 +16,8 @@
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:examples": "node examples/basic.js"
   },
   "repository": {
     "type": "git",
