@@ -104,7 +104,9 @@ console.log(diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { full: true }));
 //  }
 
 // Ignore keys
-console.log(diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { ignoreKeys: ['b'] }));
+console.log(
+  diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { ignoreKeys: ['b'] }),
+);
 // Output:
 //  {
 // -  foo: "bar"
@@ -112,15 +114,16 @@ console.log(diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { ignoreKeys: ['b']
 //  }
 
 // Ignore values
-console.log(diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { ignoreValues: true }));
+console.log(
+  diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { ignoreValues: true }),
+);
 // Output:
-//  {
-//    foo: ...
-//    b: ...
-//  }
+// { foo: { __old: 'bar', __new: 'baz' } }
 
 // Output specific keys
-console.log(diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { outputKeys: ['foo'] }));
+console.log(
+  diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { outputKeys: ['foo'] }),
+);
 // Output:
 //  {
 // -  foo: "bar"
@@ -128,29 +131,36 @@ console.log(diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { outputKeys: ['foo
 //  }
 
 // Combine options
-console.log(diff(
-  { foo: 'bar', b: 3 },
-  { foo: 'baz', b: 3 },
-  { keysOnly: true, ignoreKeys: ['b'], ignoreValues: true, outputKeys: ['foo'], full: true, color: false }
-));
+console.log(
+  diff(
+    { foo: 'bar', b: 3 },
+    { foo: 'baz', b: 3 },
+    {
+      keysOnly: true,
+      ignoreKeys: ['b'],
+      ignoreValues: true,
+      outputKeys: ['foo'],
+      full: true,
+      color: false,
+    },
+  ),
+);
 // Output:
-//  {
-//    foo: ...
-//  }
+// { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
 ```
 
 ---
 
 ## ⚙️ Options Matrix
 
-| Option         | Type      | Default | Description                                      |
-| -------------- | --------- | ------- | ------------------------------------------------ |
-| `color`        | boolean   | true    | Use colorized output                             |
-| `keysOnly`     | boolean   | false   | Only compare object keys                         |
-| `full`         | boolean   | false   | Output the entire object tree                    |
-| `outputKeys`   | string[]  | []      | Always include these keys in output              |
-| `ignoreKeys`   | string[]  | []      | Ignore these keys when comparing                 |
-| `ignoreValues` | boolean   | false   | Ignore value differences, focus on structure     |
+| Option         | Type     | Default | Description                                  |
+| -------------- | -------- | ------- | -------------------------------------------- |
+| `color`        | boolean  | true    | Use colorized output                         |
+| `keysOnly`     | boolean  | false   | Only compare object keys                     |
+| `full`         | boolean  | false   | Output the entire object tree                |
+| `outputKeys`   | string[] | []      | Always include these keys in output          |
+| `ignoreKeys`   | string[] | []      | Ignore these keys when comparing             |
+| `ignoreValues` | boolean  | false   | Ignore value differences, focus on structure |
 
 ---
 
@@ -172,5 +182,4 @@ See [`examples/basic.js`](examples/basic.js) for more usage patterns.
 
 ## 📄 License
 
-MIT © [Your Name](LICENSE)
-
+MIT © [kushalshit27](LICENSE)
