@@ -6,7 +6,7 @@ Git like diff between two strings, using the Levenshtein distance algorithm
 [![Build Status](https://travis-ci.org/niklasvh/diff-leven.svg?branch=master)](https://travis-ci.org/niklasvh/diff-leven)
 [![Coverage Status](https://coveralls.io/repos/github/niklasvh/diff-leven/badge.svg?branch=master)](https://coveralls.io/github/niklasvh/diff-leven?branch=master)
 [![npm](https://img.shields.io/npm/dm/diff-leven.svg)](https://www.npmjs.com/package/diff-leven)
-[![License](https://img.shields.io/npm/l/diff-leven.svg)]
+![License](https://img.shields.io/npm/l/diff-leven.svg)
 
 ## Features
 
@@ -229,7 +229,3 @@ Git like diff between two strings, using the Levenshtein distance algorithm
   // { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
   ```
 
-Inspired by
-
-- [leven](https://github.com/sindresorhus/leven)
-- [json-diff](https://github.com/andreyvit/json-diff)
