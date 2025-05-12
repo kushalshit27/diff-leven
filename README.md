@@ -1,235 +1,176 @@
 # diff-leven
 
-Git like diff between two strings, using the Levenshtein distance algorithm
+> Git-like diff between two strings or objects, powered by the Levenshtein distance algorithm
 
 [![npm version](https://badge.fury.io/js/diff-leven.svg)](https://badge.fury.io/js/diff-leven)
-[![Build Status](https://travis-ci.org/niklasvh/diff-leven.svg?branch=master)](https://travis-ci.org/niklasvh/diff-leven)
-[![Coverage Status](https://coveralls.io/repos/github/niklasvh/diff-leven/badge.svg?branch=master)](https://coveralls.io/github/niklasvh/diff-leven?branch=master)
 [![npm](https://img.shields.io/npm/dm/diff-leven.svg)](https://www.npmjs.com/package/diff-leven)
-[![License](https://img.shields.io/npm/l/diff-leven.svg)]
+![License](https://img.shields.io/npm/l/diff-leven.svg)
 
-## Features
+---
 
-- **Advanced Diff Generation**: Uses the Levenshtein distance algorithm to produce meaningful diffs between values
+## ✨ Features
+
+- **Advanced Diff Generation**: Uses the Levenshtein distance algorithm for meaningful diffs
 - **Multiple Data Type Support**:
   - Objects (including nested structures)
-  - Arrays (with smart matching based on content similarity)
-  - Strings (with character-level differences)
-  - Numbers
-  - Booleans
-  - Any value that can be serialized to a string
+  - Arrays (smart matching by content similarity)
+  - Strings (character-level differences)
+  - Numbers, Booleans, and any serializable value
 - **Rich Output Options**:
-  - Terminal-friendly colorized output (can be disabled)
-  - Git-style diff format with additions and removals clearly marked
+  - Terminal-friendly colorized output (toggleable)
+  - Git-style diff format with clear additions/removals
 - **Flexible Configuration**:
-  - `color`: Toggle colorized output (default: true)
-  - `keysOnly`: Compare only object structure/keys, ignoring values (default: false)
-  - `full`: Output the entire object tree, not just differences (default: false)
+  - `color`: Toggle color output (default: `true`)
+  - `keysOnly`: Compare only object structure/keys (default: `false`)
+  - `full`: Output the entire object tree, not just differences (default: `false`)
   - `outputKeys`: Always include specified keys in output for objects with differences
   - `ignoreKeys`: Skip specified keys when comparing objects
-  - `ignoreValues`: Ignore differences in values, focus only on structure
+  - `ignoreValues`: Ignore value differences, focus on structure
 
-## Exported Functions
+---
 
-- `diff`: compares two strings or objects and returns a string with the diff
+## 🚀 Quick Start
 
-### diff
+### 1. Install
 
-- input: two anything that can be converted to a string
-- options: an object with the following properties:
-  - color: a boolean that indicates whether to use colors in the output (default: true)
-  - keysOnly: a boolean that indicates whether to only compare the keys of the objects (default: false)
-  - full: a boolean that indicates whether to output the entire json tree, not just the deltas (default: false)
-  - outputKeys: an array of keys to always output for an object that has differences (default: [])
-  - ignoreKeys: an array of keys to ignore when comparing objects (default: [])
-  - ignoreValues: a boolean that indicates whether to ignore the values of the objects (default: false)
-- output: a string with the diff between the two strings or objects
-  Example:
+```bash
+npm install diff-leven
+```
 
-  ```javascript
-  var jsonDiff = require('diff-leven');
-  console.log(jsonDiff.diff({ foo: 'bar' }, { foo: 'baz' }));
-  // Output:
-  //  {
-  // -  foo: "bar"
-  // +  foo: "baz"
-  //  }
+### 2. Usage
 
-  // As above, but without console colors
+```js
+const { diff } = require('diff-leven');
 
-  console.log(jsonDiff.diff({ foo: 'bar' }, { foo: 'baz' }, { color: false }));
-  // Output:
-  //  {
-  // -  foo: "bar"
-  // +  foo: "baz"
-  //  }
+console.log(diff({ foo: 'bar' }, { foo: 'baz' }));
+// Output:
+//  {
+// -  foo: "bar"
+// +  foo: "baz"
+//  }
+```
 
-  // Raw output:
+---
 
-  console.log(jsonDiff.diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }));
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' } }
+## 🛠️ API Reference
 
-  // Passing in the "full" option:
+### `diff(a, b, options?)`
 
-  console.log(
-    jsonDiff.diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { full: true }),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
+Compare two values (strings, objects, arrays, etc.) and return a diff string.
 
-  // Passing in the "outputKeys" option:
+#### **Parameters**
 
-  console.log(
-    jsonDiff.diff(
-      { foo: 'bar', b: 3 },
-      { foo: 'baz', b: 3 },
-      { outputKeys: ['foo'] },
-    ),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
+- `a`, `b`: Anything serializable (object, array, string, number, etc.)
+- `options` _(optional object)_:
+  - `color` _(boolean)_: Use colors in output (default: `true`)
+  - `keysOnly` _(boolean)_: Only compare object keys (default: `false`)
+  - `full` _(boolean)_: Output the entire JSON tree (default: `false`)
+  - `outputKeys` _(string[])_: Always include these keys in output (default: `[]`)
+  - `ignoreKeys` _(string[])_: Ignore these keys when comparing (default: `[]`)
+  - `ignoreValues` _(boolean)_: Ignore value differences (default: `false`)
 
-  // Passing in the "ignoreKeys" option:
+#### **Returns**
 
-  console.log(
-    jsonDiff.diff(
-      { foo: 'bar', b: 3 },
-      { foo: 'baz', b: 3 },
-      { ignoreKeys: ['b'] },
-    ),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' } }
+- A string representing the diff between `a` and `b`.
 
-  // Passing in the "ignoreValues" option:
+#### **Examples**
 
-  console.log(
-    jsonDiff.diff(
-      { foo: 'bar', b: 3 },
-      { foo: 'baz', b: 3 },
-      { ignoreValues: true },
-    ),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
+```js
+const { diff } = require('diff-leven');
 
-  // Passing in the "keysOnly" option:
+// Basic diff
+console.log(diff({ foo: 'bar' }, { foo: 'baz' }));
+// Output:
+//  {
+// -  foo: "bar"
+// +  foo: "baz"
+//  }
 
-  console.log(
-    jsonDiff.diff(
-      { foo: 'bar', b: 3 },
-      { foo: 'baz', b: 3 },
-      { keysOnly: true },
-    ),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
+// No colors
+console.log(diff({ foo: 'bar' }, { foo: 'baz' }, { color: false }));
+// Output:
+//  {
+// -  foo: "bar"
+// +  foo: "baz"
+//  }
 
-  // Passing in the "ignoreKeys" and "ignoreValues" options:
+// Full output
+console.log(diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { full: true }));
+// Output:
+//  {
+// -  foo: "bar"
+// +  foo: "baz"
+//    b: 3
+//  }
 
-  console.log(
-    jsonDiff.diff(
-      { foo: 'bar', b: 3 },
-      { foo: 'baz', b: 3 },
-      { ignoreKeys: ['b'], ignoreValues: true },
-    ),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' } }
+// Ignore keys
+console.log(diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { ignoreKeys: ['b'] }));
+// Output:
+//  {
+// -  foo: "bar"
+// +  foo: "baz"
+//  }
 
-  // Passing in the "keysOnly" and "ignoreValues" options:
+// Ignore values
+console.log(diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { ignoreValues: true }));
+// Output:
+//  {
+//    foo: ...
+//    b: ...
+//  }
 
-  console.log(
-    jsonDiff.diff(
-      { foo: 'bar', b: 3 },
-      { foo: 'baz', b: 3 },
-      { keysOnly: true, ignoreValues: true },
-    ),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
+// Output specific keys
+console.log(diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { outputKeys: ['foo'] }));
+// Output:
+//  {
+// -  foo: "bar"
+// +  foo: "baz"
+//  }
 
-  // Passing in the "keysOnly" and "ignoreKeys" options:
+// Combine options
+console.log(diff(
+  { foo: 'bar', b: 3 },
+  { foo: 'baz', b: 3 },
+  { keysOnly: true, ignoreKeys: ['b'], ignoreValues: true, outputKeys: ['foo'], full: true, color: false }
+));
+// Output:
+//  {
+//    foo: ...
+//  }
+```
 
-  console.log(
-    jsonDiff.diff(
-      { foo: 'bar', b: 3 },
-      { foo: 'baz', b: 3 },
-      { keysOnly: true, ignoreKeys: ['b'] },
-    ),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
+---
 
-  // Passing in the "keysOnly", "ignoreKeys" and "ignoreValues" options:
+## ⚙️ Options Matrix
 
-  console.log(
-    jsonDiff.diff(
-      { foo: 'bar', b: 3 },
-      { foo: 'baz', b: 3 },
-      { keysOnly: true, ignoreKeys: ['b'], ignoreValues: true },
-    ),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' } }
+| Option         | Type      | Default | Description                                      |
+| -------------- | --------- | ------- | ------------------------------------------------ |
+| `color`        | boolean   | true    | Use colorized output                             |
+| `keysOnly`     | boolean   | false   | Only compare object keys                         |
+| `full`         | boolean   | false   | Output the entire object tree                    |
+| `outputKeys`   | string[]  | []      | Always include these keys in output              |
+| `ignoreKeys`   | string[]  | []      | Ignore these keys when comparing                 |
+| `ignoreValues` | boolean   | false   | Ignore value differences, focus on structure     |
 
-  // Passing in the "keysOnly", "ignoreKeys", "ignoreValues" and "outputKeys" options:
+---
 
-  console.log(
-    jsonDiff.diff(
-      { foo: 'bar', b: 3 },
-      { foo: 'baz', b: 3 },
-      {
-        keysOnly: true,
-        ignoreKeys: ['b'],
-        ignoreValues: true,
-        outputKeys: ['foo'],
-      },
-    ),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' } }
+## 📦 Examples
 
-  // Passing in the "keysOnly", "ignoreKeys", "ignoreValues", "outputKeys" and "full" options:
+See [`examples/basic.js`](examples/basic.js) for more usage patterns.
 
-  console.log(
-    jsonDiff.diff(
-      { foo: 'bar', b: 3 },
-      { foo: 'baz', b: 3 },
-      {
-        keysOnly: true,
-        ignoreKeys: ['b'],
-        ignoreValues: true,
-        outputKeys: ['foo'],
-        full: true,
-      },
-    ),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
+---
 
-  // Passing in the "keysOnly", "ignoreKeys", "ignoreValues", "outputKeys", "full" and "color" options:
+## 🤝 Contributing
 
-  console.log(
-    jsonDiff.diff(
-      { foo: 'bar', b: 3 },
-      { foo: 'baz', b: 3 },
-      {
-        keysOnly: true,
-        ignoreKeys: ['b'],
-        ignoreValues: true,
-        outputKeys: ['foo'],
-        full: true,
-        color: false,
-      },
-    ),
-  );
-  // Output:
-  // { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
-  ```
+1. Fork the repo
+2. Create your feature branch (`git checkout -b feature/YourFeature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/YourFeature`)
+5. Open a pull request
 
-Insprired by
+---
 
-- [leven](https://github.com/sindresorhus/leven)
-- [json-diff](https://github.com/andreyvit/json-diff)
+## 📄 License
+
+MIT © [Your Name](LICENSE)
+
