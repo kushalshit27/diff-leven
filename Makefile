@@ -25,11 +25,11 @@ build:
 
 format:
 	@echo "Running format..."
-	npm run format
+	npm run format:fix
 	@echo "Formatting completed."
 
 lint: format
 	@echo "Running linter..."
-	npm run lint
+	npm run lint:fix
 	@echo "Linting completed."
 

@@ -29,7 +29,7 @@ Git like diff between two strings, using the Levenshtein distance algorithm
   - `ignoreKeys`: Skip specified keys when comparing objects
   - `ignoreValues`: Ignore differences in values, focus only on structure
 
-## Exported Funtions
+## Exported Functions
 
 - `diff`: compares two strings or objects and returns a string with the diff
 

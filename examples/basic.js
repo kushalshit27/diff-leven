@@ -1,6 +1,7 @@
 // Examples for diff-leven
 
 // Import the library
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { diff, diffString } = require('../dist');
 
 // ==========================================

@@ -1,5 +1,5 @@
 import { DiffEngine } from './core/DiffEngine';
-import { DiffOptions, DiffResult } from './types';
+import { DiffOptions, DiffResult, DiffValue } from './types';
 
 // Create a single instance of the DiffEngine to reuse
 const diffEngine = new DiffEngine();
@@ -21,8 +21,8 @@ const diffEngine = new DiffEngine();
  * ```
  */
 export function diff(
-  oldValue: any,
-  newValue: any,
+  oldValue: DiffValue,
+  newValue: DiffValue,
   options: DiffOptions = {},
 ): DiffResult {
   return diffEngine.diff(oldValue, newValue, options);
@@ -49,8 +49,8 @@ export function diff(
  * ```
  */
 export function diffString(
-  oldValue: any,
-  newValue: any,
+  oldValue: DiffValue,
+  newValue: DiffValue,
   options: DiffOptions = {},
 ): string {
   return diffEngine.diffToString(oldValue, newValue, options);

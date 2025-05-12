@@ -1,5 +1,6 @@
 import { describe, test, expect } from 'vitest';
-import { diff, diffString, DiffOptions, DiffResult } from '../src';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { diff, diffString, DiffResult } from '../src';
 // Import the core classes directly for testing
 import { DiffEngine } from '../src/core/DiffEngine';
 import { DiffFormatter } from '../src/core/DiffFormatter';

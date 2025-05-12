@@ -1,4 +1,11 @@
-import { DiffOptions, DiffResult } from '../types';
+import {
+  DiffOptions,
+  DiffResult,
+  DiffValue,
+  DiffArray,
+  DiffObject,
+  DiffChange,
+} from '../types';
 import { ValueComparator } from './ValueComparator';
 import { DiffFormatter } from './DiffFormatter';
 
@@ -18,8 +25,8 @@ export class DiffEngine {
    * Compare two arrays and generate diff result
    */
   private diffArrays(
-    oldArray: any[],
-    newArray: any[],
+    oldArray: DiffArray,
+    newArray: DiffArray,
     options: DiffOptions,
   ): DiffResult {
     if (oldArray.length === 0 && newArray.length === 0) return [];
@@ -30,13 +37,13 @@ export class DiffEngine {
     // For simple test cases where arrays are same length and we're just comparing elements at same indices
     // This handles the specific case in the test without complex diffing algorithms
     if (oldArray.length === newArray.length) {
-      const result: DiffResult = [];
+      const result: DiffResult[] = [];
 
       for (let i = 0; i < oldArray.length; i++) {
         if (this.comparator.isEqual(oldArray[i], newArray[i])) {
           result[i] = oldArray[i]; // Keep same value for unchanged elements
         } else {
-          result[i] = { __old: oldArray[i], __new: newArray[i] }; // Mark changed elements
+          result[i] = { __old: oldArray[i], __new: newArray[i] } as DiffChange; // Mark changed elements
         }
       }
 
@@ -44,7 +51,7 @@ export class DiffEngine {
     }
 
     // For more complex cases (different length arrays)
-    const result: DiffResult = [];
+    const result: DiffResult[] = [];
     const matchedIndices = new Set<number>();
 
     // First pass: find matches for oldArray items in newArray
@@ -74,7 +81,7 @@ export class DiffEngine {
         result.push(diffItem);
       } else {
         // No good match found, mark as removed
-        result.push({ __old: oldItem, __new: undefined });
+        result.push({ __old: oldItem, __new: undefined } as DiffChange);
       }
     }
 
@@ -82,7 +89,7 @@ export class DiffEngine {
     for (let j = 0; j < newArray.length; j++) {
       if (!matchedIndices.has(j)) {
         // Unmatched new item, mark as added
-        result.push({ __old: undefined, __new: newArray[j] });
+        result.push({ __old: undefined, __new: newArray[j] } as DiffChange);
       }
     }
 
@@ -93,8 +100,8 @@ export class DiffEngine {
    * Compare two objects and generate diff result
    */
   private diffObjects(
-    oldObj: Record<string, any>,
-    newObj: Record<string, any>,
+    oldObj: DiffObject,
+    newObj: DiffObject,
     options: DiffOptions,
   ): DiffResult {
     const keysOnly = options.keysOnly === true;
@@ -102,7 +109,7 @@ export class DiffEngine {
     const fullOutput = options.full === true;
     const outputKeys = options.outputKeys || [];
     const ignoreKeys = options.ignoreKeys || [];
-    const result: DiffResult = {};
+    const result = {} as Record<string, DiffResult>;
 
     // Process all keys from both objects
     const allKeys = new Set([...Object.keys(oldObj), ...Object.keys(newObj)]);
@@ -141,11 +148,11 @@ export class DiffEngine {
       }
       // Keys only in oldObj (deleted)
       else if (key in oldObj) {
-        result[key] = { __old: oldValue, __new: undefined };
+        result[key] = { __old: oldValue, __new: undefined } as DiffChange;
       }
       // Keys only in newObj (added)
       else {
-        result[key] = { __old: undefined, __new: newValue };
+        result[key] = { __old: undefined, __new: newValue } as DiffChange;
       }
     }
 
@@ -155,15 +162,19 @@ export class DiffEngine {
   /**
    * Compare two values of any type and generate a diff result
    */
-  private diffValues(oldValue: any, newValue: any, options: DiffOptions): any {
+  private diffValues(
+    oldValue: DiffValue,
+    newValue: DiffValue,
+    options: DiffOptions,
+  ): DiffResult {
     // Handle exact equality
     if (this.comparator.isEqual(oldValue, newValue)) {
-      return options.full ? oldValue : undefined;
+      return options.full ? oldValue : (undefined as unknown as DiffResult);
     }
 
     // Handle null/undefined
     if (oldValue == null || newValue == null) {
-      return { __old: oldValue, __new: newValue };
+      return { __old: oldValue, __new: newValue } as DiffChange;
     }
 
     // Handle different types
@@ -171,43 +182,56 @@ export class DiffEngine {
     const typeNew = typeof newValue;
 
     if (typeOld !== typeNew) {
-      return { __old: oldValue, __new: newValue };
+      return { __old: oldValue, __new: newValue } as DiffChange;
     }
 
     // Handle strings with Levenshtein distance
-    if (typeOld === 'string') {
+    if (typeOld === 'string' && typeNew === 'string') {
       // If strings are similar but not identical, we could do character-by-character diff
       // For now, just return the old and new values
-      return { __old: oldValue, __new: newValue };
+      return { __old: oldValue, __new: newValue } as DiffChange;
     }
 
     // Handle arrays
     if (Array.isArray(oldValue) && Array.isArray(newValue)) {
-      return this.diffArrays(oldValue, newValue, options);
+      return this.diffArrays(
+        oldValue as DiffArray,
+        newValue as DiffArray,
+        options,
+      );
     }
 
     // Handle objects
-    if (typeOld === 'object' && typeNew === 'object') {
-      return this.diffObjects(oldValue, newValue, options);
+    if (
+      typeOld === 'object' &&
+      typeNew === 'object' &&
+      !Array.isArray(oldValue) &&
+      !Array.isArray(newValue)
+    ) {
+      return this.diffObjects(
+        oldValue as DiffObject,
+        newValue as DiffObject,
+        options,
+      );
     }
 
     // Handle primitives
-    return { __old: oldValue, __new: newValue };
+    return { __old: oldValue, __new: newValue } as DiffChange;
   }
 
   /**
    * Generate a diff between two values
    */
   public diff(
-    oldValue: any,
-    newValue: any,
+    oldValue: DiffValue,
+    newValue: DiffValue,
     options: DiffOptions = {},
   ): DiffResult {
     const result = this.diffValues(oldValue, newValue, options);
 
     // If no differences found, return empty object
     if (result === undefined) {
-      return {};
+      return {} as Record<string, DiffResult>;
     }
 
     return result;
@@ -217,8 +241,8 @@ export class DiffEngine {
    * Generate a formatted string representation of the diff
    */
   public diffToString(
-    oldValue: any,
-    newValue: any,
+    oldValue: DiffValue,
+    newValue: DiffValue,
     options: DiffOptions = {},
   ): string {
     const result = this.diff(oldValue, newValue, options);

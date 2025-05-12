@@ -1,4 +1,5 @@
 import leven from 'leven';
+import { DiffValue, DiffArray, DiffObject } from '../types';
 
 /**
  * A utility class for comparing values and calculating similarity
@@ -7,7 +8,7 @@ export class ValueComparator {
   /**
    * Determine if two values are equal
    */
-  public isEqual(a: any, b: any): boolean {
+  public isEqual(a: DiffValue, b: DiffValue): boolean {
     if (a === b) return true;
     if (a == null || b == null) return a === b;
 
@@ -25,22 +26,26 @@ export class ValueComparator {
     if (isArrayA !== isArrayB) return false;
 
     if (isArrayA && isArrayB) {
+      const arrayA = a as DiffArray;
+      const arrayB = b as DiffArray;
       if (a.length !== b.length) return false;
-      for (let i = 0; i < a.length; i++) {
-        if (!this.isEqual(a[i], b[i])) return false;
+      for (let i = 0; i < arrayA.length; i++) {
+        if (!this.isEqual(arrayA[i], arrayB[i])) return false;
       }
       return true;
     }
 
     // Handle objects
-    const keysA = Object.keys(a);
-    const keysB = Object.keys(b);
+    const objA = a as DiffObject;
+    const objB = b as DiffObject;
+    const keysA = Object.keys(objA);
+    const keysB = Object.keys(objB);
 
     if (keysA.length !== keysB.length) return false;
 
     for (const key of keysA) {
       if (!keysB.includes(key)) return false;
-      if (!this.isEqual(a[key], b[key])) return false;
+      if (!this.isEqual(objA[key], objB[key])) return false;
     }
 
     return true;
@@ -50,7 +55,7 @@ export class ValueComparator {
    * Calculate similarity between two objects
    * Returns a number between 0 and 1 (1 being identical)
    */
-  public calculateSimilarity(a: any, b: any): number {
+  public calculateSimilarity(a: DiffValue, b: DiffValue): number {
     if (a === b) return 1;
     if (a == null || b == null) return 0;
 
@@ -60,38 +65,44 @@ export class ValueComparator {
     if (typeA !== typeB) return 0;
 
     // Handle strings using Levenshtein distance
-    if (typeA === 'string') {
-      const distance = leven(a, b);
-      const maxLength = Math.max(a.length, b.length);
+    if (typeA === 'string' && typeB === 'string') {
+      const strA = a as string;
+      const strB = b as string;
+      const distance = leven(strA, strB);
+      const maxLength = Math.max(strA.length, strB.length);
       return maxLength === 0 ? 1 : 1 - distance / maxLength;
     }
 
     // Handle numbers
-    if (typeA === 'number') {
+    if (typeA === 'number' && typeB === 'number') {
+      const numA = a as number;
+      const numB = b as number;
       // Normalize numbers to 0-1 range for comparison
-      const max = Math.max(Math.abs(a), Math.abs(b));
+      const max = Math.max(Math.abs(numA), Math.abs(numB));
       if (max === 0) return 1; // Both are 0
-      return 1 - Math.abs(a - b) / (max * 2);
+      return 1 - Math.abs(numA - numB) / (max * 2);
     }
 
     // Handle booleans
-    if (typeA === 'boolean') {
+    if (typeA === 'boolean' && typeB === 'boolean') {
       return a === b ? 1 : 0;
     }
 
     // Handle arrays
     if (Array.isArray(a) && Array.isArray(b)) {
-      if (a.length === 0 && b.length === 0) return 1;
-      if (a.length === 0 || b.length === 0) return 0;
+      const arrayA = a as DiffArray;
+      const arrayB = b as DiffArray;
+      if (arrayA.length === 0 && arrayB.length === 0) return 1;
+      if (arrayA.length === 0 || arrayB.length === 0) return 0;
 
       // For arrays, calculate average similarity of best-matching elements
       let totalSimilarity = 0;
-      const minLength = Math.min(a.length, b.length);
-      const maxLength = Math.max(a.length, b.length);
+      const minLength = Math.min(arrayA.length, arrayB.length);
+      const maxLength = Math.max(arrayA.length, arrayB.length);
 
       // For each element in shorter array, find best match in longer array
       for (let i = 0; i < minLength; i++) {
-        let maxSimilarity = this.calculateSimilarity(a[i], b[i]);
+        const maxSimilarity = this.calculateSimilarity(arrayA[i], arrayB[i]);
         totalSimilarity += maxSimilarity;
       }
 
@@ -102,9 +113,16 @@ export class ValueComparator {
     }
 
     // Handle objects
-    if (typeA === 'object') {
-      const keysA = Object.keys(a);
-      const keysB = Object.keys(b);
+    if (
+      typeA === 'object' &&
+      typeB === 'object' &&
+      !Array.isArray(a) &&
+      !Array.isArray(b)
+    ) {
+      const objA = a as DiffObject;
+      const objB = b as DiffObject;
+      const keysA = Object.keys(objA);
+      const keysB = Object.keys(objB);
 
       if (keysA.length === 0 && keysB.length === 0) return 1;
       if (keysA.length === 0 || keysB.length === 0) return 0;
@@ -114,8 +132,8 @@ export class ValueComparator {
       let totalSimilarity = 0;
 
       for (const key of allKeys) {
-        if (key in a && key in b) {
-          totalSimilarity += this.calculateSimilarity(a[key], b[key]);
+        if (key in objA && key in objB) {
+          totalSimilarity += this.calculateSimilarity(objA[key], objB[key]);
         }
       }
 
@@ -134,7 +152,7 @@ export class ValueComparator {
    * Find the best match for an item in an array based on similarity
    * Returns [matchIndex, similarityScore]
    */
-  public findBestMatch(item: any, array: any[]): [number, number] {
+  public findBestMatch(item: DiffValue, array: DiffValue[]): [number, number] {
     if (array.length === 0) return [-1, 0];
 
     let bestIndex = 0;

@@ -11,7 +11,8 @@
   "scripts": {
     "build": "tsup",
     "check-types": "tsc --noEmit",
-    "lint": "eslint src",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "npm run format:check && npm run format:fix",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",

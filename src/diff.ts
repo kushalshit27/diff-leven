@@ -1,10 +1,17 @@
 import leven from 'leven';
-import { DiffOptions, DiffResult } from './types';
+import {
+  DiffOptions,
+  DiffResult,
+  DiffValue,
+  DiffObject,
+  DiffArray,
+  DiffChange,
+} from './types';
 
 /**
  * Determine if two values are equal
  */
-function isEqual(a: any, b: any): boolean {
+function isEqual(a: DiffValue, b: DiffValue): boolean {
   if (a === b) return true;
   if (a == null || b == null) return a === b;
 
@@ -22,22 +29,26 @@ function isEqual(a: any, b: any): boolean {
   if (isArrayA !== isArrayB) return false;
 
   if (isArrayA && isArrayB) {
+    const arrayA = a as DiffArray;
+    const arrayB = b as DiffArray;
     if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-      if (!isEqual(a[i], b[i])) return false;
+    for (let i = 0; i < arrayA.length; i++) {
+      if (!isEqual(arrayA[i], arrayB[i])) return false;
     }
     return true;
   }
 
   // Handle objects
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
+  const objA = a as DiffObject;
+  const objB = b as DiffObject;
+  const keysA = Object.keys(objA);
+  const keysB = Object.keys(objB);
 
   if (keysA.length !== keysB.length) return false;
 
   for (const key of keysA) {
     if (!keysB.includes(key)) return false;
-    if (!isEqual(a[key], b[key])) return false;
+    if (!isEqual(objA[key], objB[key])) return false;
   }
 
   return true;
@@ -47,7 +58,7 @@ function isEqual(a: any, b: any): boolean {
  * Calculate similarity between two objects
  * Returns a number between 0 and 1 (1 being identical)
  */
-function calculateSimilarity(a: any, b: any): number {
+function calculateSimilarity(a: DiffValue, b: DiffValue): number {
   if (a === b) return 1;
   if (a == null || b == null) return 0;
 
@@ -57,38 +68,44 @@ function calculateSimilarity(a: any, b: any): number {
   if (typeA !== typeB) return 0;
 
   // Handle strings using Levenshtein distance
-  if (typeA === 'string') {
-    const distance = leven(a, b);
-    const maxLength = Math.max(a.length, b.length);
+  if (typeA === 'string' && typeB === 'string') {
+    const strA = a as string;
+    const strB = b as string;
+    const distance = leven(strA, strB);
+    const maxLength = Math.max(strA.length, strB.length);
     return maxLength === 0 ? 1 : 1 - distance / maxLength;
   }
 
   // Handle numbers
-  if (typeA === 'number') {
+  if (typeA === 'number' && typeB === 'number') {
+    const numA = a as number;
+    const numB = b as number;
     // Normalize numbers to 0-1 range for comparison
-    const max = Math.max(Math.abs(a), Math.abs(b));
+    const max = Math.max(Math.abs(numA), Math.abs(numB));
     if (max === 0) return 1; // Both are 0
-    return 1 - Math.abs(a - b) / (max * 2);
+    return 1 - Math.abs(numA - numB) / (max * 2);
   }
 
   // Handle booleans
-  if (typeA === 'boolean') {
+  if (typeA === 'boolean' && typeB === 'boolean') {
     return a === b ? 1 : 0;
   }
 
   // Handle arrays
   if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length === 0 && b.length === 0) return 1;
-    if (a.length === 0 || b.length === 0) return 0;
+    const arrayA = a as DiffArray;
+    const arrayB = b as DiffArray;
+    if (arrayA.length === 0 && arrayB.length === 0) return 1;
+    if (arrayA.length === 0 || arrayB.length === 0) return 0;
 
     // For arrays, calculate average similarity of best-matching elements
     let totalSimilarity = 0;
-    const minLength = Math.min(a.length, b.length);
-    const maxLength = Math.max(a.length, b.length);
+    const minLength = Math.min(arrayA.length, arrayB.length);
+    const maxLength = Math.max(arrayA.length, arrayB.length);
 
     // For each element in shorter array, find best match in longer array
     for (let i = 0; i < minLength; i++) {
-      let maxSimilarity = calculateSimilarity(a[i], b[i]);
+      const maxSimilarity = calculateSimilarity(arrayA[i], arrayB[i]);
       totalSimilarity += maxSimilarity;
     }
 
@@ -99,9 +116,16 @@ function calculateSimilarity(a: any, b: any): number {
   }
 
   // Handle objects
-  if (typeA === 'object') {
-    const keysA = Object.keys(a);
-    const keysB = Object.keys(b);
+  if (
+    typeA === 'object' &&
+    typeB === 'object' &&
+    !Array.isArray(a) &&
+    !Array.isArray(b)
+  ) {
+    const objA = a as DiffObject;
+    const objB = b as DiffObject;
+    const keysA = Object.keys(objA);
+    const keysB = Object.keys(objB);
 
     if (keysA.length === 0 && keysB.length === 0) return 1;
     if (keysA.length === 0 || keysB.length === 0) return 0;
@@ -111,8 +135,8 @@ function calculateSimilarity(a: any, b: any): number {
     let totalSimilarity = 0;
 
     for (const key of allKeys) {
-      if (key in a && key in b) {
-        totalSimilarity += calculateSimilarity(a[key], b[key]);
+      if (key in objA && key in objB) {
+        totalSimilarity += calculateSimilarity(objA[key], objB[key]);
       }
     }
 
@@ -131,7 +155,7 @@ function calculateSimilarity(a: any, b: any): number {
  * Find the best match for an item in an array based on similarity
  * Returns [matchIndex, similarityScore]
  */
-function findBestMatch(item: any, array: any[]): [number, number] {
+function findBestMatch(item: DiffValue, array: DiffValue[]): [number, number] {
   if (array.length === 0) return [-1, 0];
 
   let bestIndex = 0;
@@ -152,8 +176,8 @@ function findBestMatch(item: any, array: any[]): [number, number] {
  * Compare two arrays and generate diff result
  */
 function diffArrays(
-  oldArray: any[],
-  newArray: any[],
+  oldArray: DiffArray,
+  newArray: DiffArray,
   options: DiffOptions,
 ): DiffResult {
   if (oldArray.length === 0 && newArray.length === 0) return [];
@@ -161,7 +185,7 @@ function diffArrays(
   // Fast path for identical arrays
   if (isEqual(oldArray, newArray)) return [...oldArray];
 
-  const result: DiffResult = [];
+  const result = [] as DiffResult[];
   const matchedIndices = new Set<number>();
 
   // First pass: find matches for oldArray items in newArray
@@ -203,14 +227,14 @@ function diffArrays(
  * Compare two objects and generate diff result
  */
 function diffObjects(
-  oldObj: Record<string, any>,
-  newObj: Record<string, any>,
+  oldObj: DiffObject,
+  newObj: DiffObject,
   options: DiffOptions,
 ): DiffResult {
   const keysOnly = options.keysOnly === true;
   const fullOutput = options.full === true;
   const outputKeys = options.outputKeys || [];
-  const result: DiffResult = {};
+  const result = {} as Record<string, DiffResult>;
 
   // Process all keys from both objects
   const allKeys = new Set([...Object.keys(oldObj), ...Object.keys(newObj)]);
@@ -251,15 +275,19 @@ function diffObjects(
 /**
  * Compare two values of any type and generate a diff result
  */
-function diffValues(oldValue: any, newValue: any, options: DiffOptions): any {
+function diffValues(
+  oldValue: DiffValue,
+  newValue: DiffValue,
+  options: DiffOptions,
+): DiffResult {
   // Handle exact equality
   if (isEqual(oldValue, newValue)) {
-    return options.full ? oldValue : undefined;
+    return options.full ? oldValue : (undefined as unknown as DiffResult);
   }
 
   // Handle null/undefined
   if (oldValue == null || newValue == null) {
-    return { __old: oldValue, __new: newValue };
+    return { __old: oldValue, __new: newValue } as DiffChange;
   }
 
   // Handle different types
@@ -271,39 +299,44 @@ function diffValues(oldValue: any, newValue: any, options: DiffOptions): any {
   }
 
   // Handle strings with Levenshtein distance
-  if (typeOld === 'string') {
+  if (typeOld === 'string' && typeNew === 'string') {
     // If strings are similar but not identical, we could do character-by-character diff
     // For now, just return the old and new values
-    return { __old: oldValue, __new: newValue };
+    return { __old: oldValue, __new: newValue } as DiffChange;
   }
 
   // Handle arrays
   if (Array.isArray(oldValue) && Array.isArray(newValue)) {
-    return diffArrays(oldValue, newValue, options);
+    return diffArrays(oldValue as DiffArray, newValue as DiffArray, options);
   }
 
   // Handle objects
-  if (typeOld === 'object' && typeNew === 'object') {
-    return diffObjects(oldValue, newValue, options);
+  if (
+    typeOld === 'object' &&
+    typeNew === 'object' &&
+    !Array.isArray(oldValue) &&
+    !Array.isArray(newValue)
+  ) {
+    return diffObjects(oldValue as DiffObject, newValue as DiffObject, options);
   }
 
   // Handle primitives
-  return { __old: oldValue, __new: newValue };
+  return { __old: oldValue, __new: newValue } as DiffChange;
 }
 
 /**
  * Generate a diff between two values
  */
 export function diff(
-  oldValue: any,
-  newValue: any,
+  oldValue: DiffValue,
+  newValue: DiffValue,
   options: DiffOptions = {},
 ): DiffResult {
   const result = diffValues(oldValue, newValue, options);
 
   // If no differences found, return empty object
   if (result === undefined) {
-    return {};
+    return {} as Record<string, DiffResult>;
   }
 
   return result;

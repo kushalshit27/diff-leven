@@ -1,4 +1,4 @@
-import { DiffResult, DiffOptions } from './types';
+import { DiffResult, DiffOptions, DiffValue, isDiffChange } from './types';
 
 /**
  * ANSI color codes for terminal output
@@ -14,7 +14,7 @@ const colors = {
 /**
  * Format a value for display in the diff output
  */
-function formatValue(value: any): string {
+function formatValue(value: DiffValue): string {
   if (value === null) return 'null';
   if (value === undefined) return 'undefined';
   if (typeof value === 'string') return `"${value}"`;
@@ -33,9 +33,9 @@ export function formatDiff(
   const indentation = '  '.repeat(indent);
 
   // Handle direct value changes
-  if ('__old' in diffResult && '__new' in diffResult) {
-    const oldValue = formatValue(diffResult.__old);
-    const newValue = formatValue(diffResult.__new);
+  if (isDiffChange(diffResult)) {
+    const oldValue = formatValue(diffResult.__old ?? undefined);
+    const newValue = formatValue(diffResult.__new ?? undefined);
 
     if (useColor) {
       return [
@@ -51,30 +51,38 @@ export function formatDiff(
 
   // Handle objects/arrays
   const lines: string[] = [];
+
+  // Exit if diffResult is a primitive or null/undefined
+  if (
+    diffResult === null ||
+    diffResult === undefined ||
+    typeof diffResult !== 'object'
+  ) {
+    return formatValue(diffResult as DiffValue);
+  }
+
   const isArray = Array.isArray(diffResult);
 
   // Opening bracket
   lines.push(`${indentation}${isArray ? '[' : '{'}`);
 
   // Process each key/index
-  Object.keys(diffResult).forEach((key) => {
-    const value = diffResult[key];
+  const diffResultObj = diffResult as Record<string, DiffResult>;
+
+  Object.keys(diffResultObj).forEach((key) => {
+    const value = diffResultObj[key];
 
     // Skip internal properties
     if (key === '__old' || key === '__new') return;
 
     // Process nested diff result
-    if (
-      typeof value === 'object' &&
-      value !== null &&
-      (value.__old !== undefined || value.__new !== undefined)
-    ) {
+    if (typeof value === 'object' && value !== null && isDiffChange(value)) {
       const propName = isArray ? '' : `${key}: `;
 
       if ('__old' in value && '__new' in value) {
         // Direct property change
-        const oldValue = formatValue(value.__old);
-        const newValue = formatValue(value.__new);
+        const oldValue = formatValue(value.__old ?? undefined);
+        const newValue = formatValue(value.__new ?? undefined);
 
         if (useColor) {
           lines.push(
@@ -121,8 +129,8 @@ export function formatDiff(
  * Format the result of a diff operation as a string
  */
 export function diffToString(
-  oldObj: any,
-  newObj: any,
+  oldObj: DiffValue,
+  newObj: DiffValue,
   diffResult: DiffResult,
   options: DiffOptions = {},
 ): string {
