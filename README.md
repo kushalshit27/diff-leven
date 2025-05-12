@@ -229,7 +229,7 @@ Git like diff between two strings, using the Levenshtein distance algorithm
   // { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
   ```
 
-Insprired by
+Inspired by
 
 - [leven](https://github.com/sindresorhus/leven)
 - [json-diff](https://github.com/andreyvit/json-diff)
