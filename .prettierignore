@@ -1,0 +1,7 @@
+# Ignore artifacts:
+dist
+.clinerules
+.github
+.husky
+node_modules
+

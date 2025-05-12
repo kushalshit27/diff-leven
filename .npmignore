@@ -1,0 +1,14 @@
+src/
+test/
+local/
+/npm-debug.log
+examples/
+docs/
+config*.json
+.env
+.idea
+.npmrc
+yarn-error.log
+*.pem
+*.pub
+Makefile
