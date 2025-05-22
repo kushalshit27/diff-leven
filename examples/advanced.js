@@ -2,7 +2,7 @@
 
 // Import the library
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { diff, diffString } = require('../dist');
+const { diff, diffRaw } = require('../dist');
 
 // Example 1: Complex nested objects
 console.log('=== Complex Nested Objects ===');
@@ -71,7 +71,7 @@ const user2 = {
   },
 };
 
-console.log(diffString(user1, user2));
+console.log(diff(user1, user2));
 
 // Example 2: Working with arrays of objects
 console.log('\n=== Arrays of Objects ===');
@@ -88,7 +88,7 @@ const posts2 = [
   { id: 4, title: 'New Post', likes: 0, author: 'dave' }, // completely different
 ];
 
-console.log(diffString(posts1, posts2));
+console.log(diff(posts1, posts2));
 
 // Example 3: Combining multiple options
 console.log('\n=== Combining Multiple Options ===');
@@ -162,7 +162,7 @@ const config2 = {
 // Complex options example - hide sensitive info, focus on structure changes,
 // always show version and environment fields
 console.log(
-  diffString(config1, config2, {
+  diff(config1, config2, {
     ignoreKeys: ['password', 'user'], // Don't compare these sensitive fields
     outputKeys: ['version', 'environment'], // Always include these fields
     color: true, // Use colors
@@ -171,7 +171,7 @@ console.log(
 
 // Example 4: Raw diff output (not string formatted)
 console.log('\n=== Raw Diff Output ===');
-const rawDiff = diff(
+const rawDiff = diffRaw(
   { a: 1, b: { c: 2 }, d: [1, 2, 3] },
   { a: 1, b: { c: 3 }, d: [1, 2, 4] },
 );
@@ -181,16 +181,16 @@ console.log(JSON.stringify(rawDiff, null, 2));
 console.log('\n=== Levenshtein String Comparison ===');
 const string1 = 'The quick brown fox jumps over the lazy dog';
 const string2 = 'The quick brown fox jumped over a lazy dog';
-console.log(diffString(string1, string2));
+console.log(diff(string1, string2));
 
 // Similar strings example
 const title1 = 'Introduction to JavaScript Programming';
 const title2 = 'Introduction to JavaScript Development';
 console.log('\n=== Similar Strings ===');
-console.log(diffString(title1, title2));
+console.log(diff(title1, title2));
 
 // Array of similar strings
 const keywords1 = ['javascript', 'react', 'node', 'development'];
 const keywords2 = ['javascript', 'react', 'node.js', 'web development'];
 console.log('\n=== Array of Similar Strings ===');
-console.log(diffString(keywords1, keywords2));
+console.log(diff(keywords1, keywords2));

@@ -10,7 +10,7 @@ import { DiffOptions, DiffResult, DiffType, SerializableValue } from './types';
  * @param options - Configuration options for the diff
  * @returns A structured diff result object
  */
-export function diff(
+export function diffRaw(
   oldValue: SerializableValue,
   newValue: SerializableValue,
   options: DiffOptions = {},
@@ -26,12 +26,12 @@ export function diff(
  * @param options - Configuration options for the diff
  * @returns A formatted string representation of the diff
  */
-export function diffString(
+export function diff(
   oldValue: SerializableValue,
   newValue: SerializableValue,
   options: DiffOptions = {},
 ): string {
-  const diffResult = diff(oldValue, newValue, options);
+  const diffResult = diffRaw(oldValue, newValue, options);
   return formatDiff(diffResult, options);
 }
 

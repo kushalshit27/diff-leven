@@ -2,7 +2,7 @@
 
 // Import the library
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { diff, diffString } = require('../dist');
+const { diff, diffRaw } = require('../dist');
 
 // ==========================================
 // Basic Usage Examples
@@ -13,14 +13,14 @@ const obj1 = { foo: 'bar', count: 42 };
 const obj2 = { foo: 'baz', count: 42 };
 
 console.log('=== Object diff ===');
-console.log(diffString(obj1, obj2));
+console.log(diff(obj1, obj2));
 
 // Array diff
 const arr1 = [1, 2, 3, 4];
 const arr2 = [1, 2, 5, 4];
 
 console.log('\n=== Array diff ===');
-console.log(diffString(arr1, arr2));
+console.log(diff(arr1, arr2));
 
 // Nested object diff
 const nested1 = {
@@ -44,7 +44,7 @@ const nested2 = {
 };
 
 console.log('\n=== Nested object diff ===');
-console.log(diffString(nested1, nested2));
+console.log(diff(nested1, nested2));
 
 // ==========================================
 // Option Examples
@@ -55,45 +55,45 @@ const structure1 = { a: 1, b: { c: 2, d: 3 } };
 const structure2 = { a: 100, b: { c: 200 }, e: 4 };
 
 console.log('\n=== Keys only diff ===');
-console.log(diffString(structure1, structure2, { keysOnly: true }));
+console.log(diff(structure1, structure2, { keysOnly: true }));
 
 // Using full option - show the entire object tree, not just differences
 console.log('\n=== Full output diff ===');
-console.log(diffString(obj1, obj2, { full: true }));
+console.log(diff(obj1, obj2, { full: true }));
 
 // Using outputKeys option - always include specified keys in output for objects with differences
 console.log('\n=== Output specific keys ===');
-console.log(diffString(obj1, obj2, { outputKeys: ['count'] }));
+console.log(diff(obj1, obj2, { outputKeys: ['count'] }));
 
 // Using ignoreKeys option (new) - skip specified keys when comparing objects
 const userData1 = { name: 'John', age: 30, timestamp: Date.now() };
 const userData2 = { name: 'Jane', age: 25, timestamp: Date.now() + 1000 };
 
 console.log('\n=== Ignore keys diff ===');
-console.log(diffString(userData1, userData2, { ignoreKeys: ['timestamp'] }));
+console.log(diff(userData1, userData2, { ignoreKeys: ['timestamp'] }));
 
 // Using ignoreValues with structural differences
 const struct1 = { a: 1, b: 2, c: { d: 3 } };
 const struct2 = { a: 999, b: 888, c: { d: 777, e: 555 } };
 
 console.log('\n=== Ignore values with structural diff ===');
-console.log(diffString(struct1, struct2, { ignoreValues: true }));
+console.log(diff(struct1, struct2, { ignoreValues: true }));
 
 // Using ignoreValues with full option to show complete structure
 console.log('\n=== Ignore values with full option ===');
-console.log(diffString(struct1, struct2, { ignoreValues: true, full: true }));
+console.log(diff(struct1, struct2, { ignoreValues: true, full: true }));
 
 // Arrays with ignoreValues
 const arr3 = [1, 2, 3];
 const arr4 = [9, 8, 7, 6];
 
 console.log('\n=== Array with ignoreValues ===');
-console.log(diffString(arr3, arr4, { ignoreValues: true }));
+console.log(diff(arr3, arr4, { ignoreValues: true }));
 
 // Combining multiple options
 console.log('\n=== Combined options diff ===');
 console.log(
-  diffString(userData1, userData2, {
+  diff(userData1, userData2, {
     ignoreKeys: ['timestamp'],
     outputKeys: ['name'],
     color: false,
@@ -102,7 +102,7 @@ console.log(
 
 // Raw diff output (JavaScript object instead of formatted string)
 console.log('\n=== Raw diff output ===');
-console.log(JSON.stringify(diff(obj1, obj2), null, 2));
+console.log(JSON.stringify(diffRaw(obj1, obj2), null, 2));
 
 // ==========================================
 // Real-world Examples
@@ -141,7 +141,7 @@ const config2 = {
 
 console.log('\n=== Configuration comparison (ignoring credentials) ===');
 console.log(
-  diffString(config1, config2, {
+  diff(config1, config2, {
     ignoreKeys: ['password', 'username'],
   }),
 );
