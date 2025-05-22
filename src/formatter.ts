@@ -184,6 +184,14 @@ function formatArrayDiff(
             result += `${innerIndent}  ${formatPrimitive(child.newValue)}`;
             visibleItems++;
             break;
+          case DiffType.CHANGED:
+            result += color
+              ? `${innerIndent}${colors.red}- ${formatPrimitive(child.oldValue)}${colors.reset}\n` +
+                `${innerIndent}${colors.green}+ ${formatPrimitive(child.newValue)}${colors.reset}`
+              : `${innerIndent}- ${formatPrimitive(child.oldValue)}\n` +
+                `${innerIndent}+ ${formatPrimitive(child.newValue)}`;
+            visibleItems++;
+            break;
         }
       }
     }

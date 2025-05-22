@@ -8,19 +8,12 @@ const { diff, diffString } = require('../dist');
 // Basic Usage Examples
 // ==========================================
 
-// Simple object 1 diff
+// Simple object diff
 const obj1 = { foo: 'bar', count: 42 };
 const obj2 = { foo: 'baz', count: 42 };
 
 console.log('=== Object diff ===');
 console.log(diffString(obj1, obj2));
-
-// Simple object 2 diff full
-const obj3 = { foo: 'bar', count: 42 };
-const obj4 = { foo: 'baz', count: 42 };
-
-console.log('=== Object diff full ===');
-console.log(diffString(obj3, obj4, { full: true }));
 
 // Array diff
 const arr1 = [1, 2, 3, 4];
