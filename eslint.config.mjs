@@ -8,4 +8,12 @@ export default defineConfig({
   rules: {
     '@typescript-eslint/no-explicit-any': 'warn',
   },
+  ignores: [
+    '**/node_modules/**',
+    '**/dist/**',
+    '**/coverage/**',
+    '**/build/**',
+    '**/lib/**',
+    '**/out/**',
+  ],
 });

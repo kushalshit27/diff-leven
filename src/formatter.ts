@@ -35,9 +35,8 @@ export function formatDiff(
   }
 
   // Handle objects and arrays
-  return formatComplex(diff, options);
+  return formatComplex(diff, options, 0);
 }
-
 
 /**
  * Format a primitive value diff (added, removed, changed)
@@ -94,200 +93,207 @@ function formatValue(diff: DiffResult, useColor: boolean): string {
 
 /**
  * Format complex objects and arrays
+ * For objects, use Git-like diff format with JSON-style indentation
  */
-function formatComplex(diff: DiffResult, options: DiffOptions): string {
-  const { color = true, full = false, outputKeys = [] } = options;
+function formatComplex(
+  diff: DiffResult,
+  options: DiffOptions,
+  indent: number = 0,
+): string {
+  const { full = false } = options;
 
-  // Skip unchanged nested values unless full output is requested
-  if (diff.type === DiffType.UNCHANGED && !full) {
+  // Early return for unchanged primitives
+  if (
+    diff.type === DiffType.UNCHANGED &&
+    !full &&
+    (!diff.children ||
+      diff.children.length === 0 ||
+      (typeof diff.oldValue !== 'object' && typeof diff.newValue !== 'object'))
+  ) {
     return '';
   }
 
-  // Check if this is a key-value object with simple changes
-  const isSimpleObjectWithChanges =
-    !Array.isArray(diff.oldValue) &&
-    !Array.isArray(diff.newValue) &&
-    typeof diff.oldValue === 'object' &&
-    typeof diff.newValue === 'object';
+  return Array.isArray(diff.oldValue) || Array.isArray(diff.newValue)
+    ? formatArrayDiff(diff, options, indent)
+    : formatObjectDiff(diff, options, indent);
+}
 
-  if (diff.type === DiffType.CHANGED && diff.children && isSimpleObjectWithChanges) {
-    // For objects, use Git-like diff format with JSON-style indentation
-    let result = '';
-    const isArray = Array.isArray(diff.oldValue || diff.newValue);
-    const openBracket = isArray ? '[' : '{';
-    const closeBracket = isArray ? ']' : '}';
+/**
+ * Format array diffs with proper indentation and Git-style markers
+ */
+function formatArrayDiff(
+  diff: DiffResult,
+  options: DiffOptions,
+  indent: number = 0,
+): string {
+  const { color = true, full = false } = options;
+  const baseIndent = ' '.repeat(indent);
+  const innerIndent = ' '.repeat(indent + 2);
+  let result = `[\n`;
+  let visibleItems = 0;
 
-    // Add opening bracket
-    result += openBracket;
-    // Add newline if we have content
-    if (diff.children && diff.children.length > 0) {
-      result += '\n';
-    }
+  if (diff.children) {
+    for (let i = 0; i < diff.children.length; i++) {
+      const child = diff.children[i];
 
-    if (diff.children) {
-      const relevantChildren = diff.children
-        .filter((child) => {
-          // Always include outputKeys
-          if (child.path && outputKeys.includes(child.path[child.path.length - 1])) {
-            return true;
+      // Skip unchanged items unless full output is requested
+      if (
+        child.type === DiffType.UNCHANGED &&
+        !full &&
+        (!child.children || child.children.length === 0)
+      ) {
+        continue;
+      }
+
+      if (child.children && child.children.length > 0) {
+        // Handle nested objects/arrays within the array
+        const nestedOutput = Array.isArray(child.newValue || child.oldValue)
+          ? formatArrayDiff(child, options, indent + 2)
+          : formatObjectDiff(child, options, indent + 2);
+
+        // Only add if there's actual content
+        if (nestedOutput.trim().length > 2) {
+          // More than just '[]' or '{}'
+          if (visibleItems > 0) {
+            result += ',\n';
           }
-          // Include changed values or everything if full output is requested
-          return child.type !== DiffType.UNCHANGED || full;
-        });
-
-      const childLines = relevantChildren.map((child) => {
-        if (!child.path || child.path.length === 0) return '';
-
-        const key = child.path[child.path.length - 1];
-
-        if (child.type === DiffType.UNCHANGED) {
-          // Unchanged property with proper indentation
-          const value = formatPrimitive(child.newValue ?? child.oldValue);
-          return `  "${key}": ${value},`;
-        } else if (child.type === DiffType.ADDED) {
-          // Added property with proper indentation
-          const value = formatPrimitive(child.newValue);
-          const formattedValue = formatMultilineValue(value, 4);
-          const line = color
-            ? `${colors.green}+  "${key}": ${formattedValue},${colors.reset}`
-            : `+  "${key}": ${formattedValue},`;
-          return line;
-        } else if (child.type === DiffType.REMOVED) {
-          // Removed property with proper indentation
-          const value = formatPrimitive(child.oldValue);
-          const formattedValue = formatMultilineValue(value, 4);
-          const line = color
-            ? `${colors.red}-  "${key}": ${formattedValue},${colors.reset}`
-            : `-  "${key}": ${formattedValue},`;
-          return line;
-        } else if (child.type === DiffType.CHANGED) {
-          const oldVal = formatPrimitive(child.oldValue);
-          const newVal = formatPrimitive(child.newValue);
-
-          // Check if child has its own children (nested object/array)
-          if (child.children && child.children.length > 0) {
-            // For nested objects/arrays, format them separately with proper indentation
-            const nestedFormat = formatDiff(child, options);
-            if (nestedFormat) {
-              return `  "${key}": ${nestedFormat},`;
-            }
-          }
-
-          // For simple changes, show both old and new values on separate lines with proper indentation
-          const formattedOldVal = formatMultilineValue(oldVal, 4);
-          const formattedNewVal = formatMultilineValue(newVal, 4);
-
-          const oldLine = color
-            ? `${colors.red}-  "${key}": ${formattedOldVal},${colors.reset}`
-            : `-  "${key}": ${formattedOldVal},`;
-          const newLine = color
-            ? `${colors.green}+  "${key}": ${formattedNewVal},${colors.reset}`
-            : `+  "${key}": ${formattedNewVal},`;
-          return `${oldLine}\n${newLine}`;
+          result += innerIndent;
+          result += nestedOutput;
+          visibleItems++;
         }
-        return '';
-      }).filter(line => line.length > 0);
+      } else {
+        // Handle primitive values
+        if (visibleItems > 0) {
+          result += ',\n';
+        }
 
-      result += childLines.join('\n');
+        switch (child.type) {
+          case DiffType.ADDED:
+            result += color
+              ? `${innerIndent}${colors.green}+ ${formatPrimitive(child.newValue)}${colors.reset}`
+              : `${innerIndent}+ ${formatPrimitive(child.newValue)}`;
+            visibleItems++;
+            break;
+          case DiffType.REMOVED:
+            result += color
+              ? `${innerIndent}${colors.red}- ${formatPrimitive(child.oldValue)}${colors.reset}`
+              : `${innerIndent}- ${formatPrimitive(child.oldValue)}`;
+            visibleItems++;
+            break;
+          case DiffType.UNCHANGED:
+            result += `${innerIndent}  ${formatPrimitive(child.newValue)}`;
+            visibleItems++;
+            break;
+        }
+      }
     }
-
-    // Add closing bracket
-    if (diff.children && diff.children.length > 0) {
-      result += `\n${closeBracket}`;
-    } else {
-      result += closeBracket;
-    }
-
-    return result;
   }
 
-  // Standard formatting for arrays and non-simple objects with JSON-style indentation
-  let result = '';
-  const isArray = Array.isArray(diff.oldValue || diff.newValue);
-  const openBracket = isArray ? '[' : '{';
-  const closeBracket = isArray ? ']' : '}';
-
-  // Add opening bracket
-  result += openBracket;
-  // Add newline if we have content
-  if (diff.children && diff.children.length > 0) {
+  if (visibleItems > 0) {
     result += '\n';
   }
-
-  // Process children
-  if (diff.children) {
-    const childLines = diff.children
-      .filter((child) => {
-        // Always include outputKeys
-        if (
-          child.path &&
-          outputKeys.includes(child.path[child.path.length - 1])
-        ) {
-          return true;
-        }
-
-        // Include changed values or everything if full output is requested
-        return child.type !== DiffType.UNCHANGED || full;
-      })
-      .map((child) => {
-        const childFormat = formatDiff(child, options);
-        if (!childFormat) return '';
-
-        // For objects, include the key with proper JSON format
-        if (!isArray && child.path && child.path.length > 0) {
-          const key = child.path[child.path.length - 1];
-
-          if (child.type === DiffType.UNCHANGED) {
-            return `  "${key}": ${childFormat},`;
-          } else if (child.type === DiffType.ADDED) {
-            const formattedFormat = formatMultilineValue(childFormat, 4);
-            return color
-              ? `${colors.green}+  "${key}": ${formattedFormat},${colors.reset}`
-              : `+  "${key}": ${formattedFormat},`;
-          } else if (child.type === DiffType.REMOVED) {
-            const formattedFormat = formatMultilineValue(childFormat, 4);
-            return color
-              ? `${colors.red}-  "${key}": ${formattedFormat},${colors.reset}`
-              : `-  "${key}": ${formattedFormat},`;
-          } else {
-            // For CHANGED
-            return `  "${key}": ${childFormat},`;
-          }
-        }
-
-        // For arrays, format with proper indentation
-        return `  ${childFormat}`;
-      })
-      .filter((line) => line.length > 0);
-
-    result += childLines.join('\n');
-  }
-
-  // Add closing bracket
-  if (diff.children && diff.children.length > 0) {
-    result += `\n${closeBracket}`;
-  } else {
-    result += closeBracket;
-  }
-
+  result += `${baseIndent}]`;
   return result;
 }
 
 /**
- * Format multi-line values with proper indentation
+ * Format object diffs with proper indentation and Git-style markers
  */
-function formatMultilineValue(value: string, baseIndent: number): string {
-  // If the value contains newlines (like in pretty-printed JSON objects)
-  if (value.includes('\n')) {
-    // Add proper indentation to each line
-    return value.split('\n').map((line, i) => {
-      // Don't indent the first line as it's already indented by the caller
-      if (i === 0) return line;
-      return ' '.repeat(baseIndent) + line;
-    }).join('\n');
+function formatObjectDiff(
+  diff: DiffResult,
+  options: DiffOptions,
+  indent: number = 0,
+): string {
+  const { color = true, full = false } = options;
+  const baseIndent = ' '.repeat(indent);
+  const innerIndent = ' '.repeat(indent + 2);
+  let result = `{\n`;
+  let visibleItems = 0;
+
+  if (diff.children) {
+    // First, filter out children that won't be displayed
+    const displayableChildren = diff.children.filter((child) => {
+      if (child.type !== DiffType.UNCHANGED) return true;
+      if (full) return true;
+      if (child.children && child.children.length > 0) return true;
+      const key = child.path?.[child.path.length - 1] || '';
+      if (options.outputKeys?.includes(key)) return true;
+      return false;
+    });
+
+    for (let i = 0; i < displayableChildren.length; i++) {
+      const child = displayableChildren[i];
+      const key = child.path?.[child.path.length - 1] || '';
+      const isLast = i === displayableChildren.length - 1;
+
+      // If we already added an item, and we're not at a new line, add a comma and new line
+      if (visibleItems > 0 && !result.endsWith('\n')) {
+        result += ',\n';
+      }
+
+      if (child.children && child.children.length > 0) {
+        // Handle nested objects/arrays
+        const nestedContent = Array.isArray(child.newValue || child.oldValue)
+          ? formatArrayDiff(child, options, indent + 2)
+          : formatObjectDiff(child, options, indent + 2);
+
+        // Only add if there's actual content in the nested structure
+        if (nestedContent.trim().length > 2) {
+          // More than just '{}' or '[]'
+          result += `${innerIndent}${key}: ${nestedContent}`;
+          visibleItems++;
+        }
+      } else {
+        // Handle primitive values
+        switch (child.type) {
+          case DiffType.ADDED:
+            result += color
+              ? `${innerIndent}${colors.green}+ ${key}: ${formatPrimitive(child.newValue)}${colors.reset}`
+              : `${innerIndent}+ ${key}: ${formatPrimitive(child.newValue)}`;
+            visibleItems++;
+            break;
+          case DiffType.REMOVED:
+            result += color
+              ? `${innerIndent}${colors.red}- ${key}: ${formatPrimitive(child.oldValue)}${colors.reset}`
+              : `${innerIndent}- ${key}: ${formatPrimitive(child.oldValue)}`;
+            visibleItems++;
+            break;
+          case DiffType.CHANGED:
+            result += color
+              ? `${innerIndent}${colors.red}- ${key}: ${formatPrimitive(child.oldValue)}${colors.reset}\n` +
+                `${innerIndent}${colors.green}+ ${key}: ${formatPrimitive(child.newValue)}${colors.reset}`
+              : `${innerIndent}- ${key}: ${formatPrimitive(child.oldValue)}\n` +
+                `${innerIndent}+ ${key}: ${formatPrimitive(child.newValue)}`;
+            visibleItems++;
+            break;
+          case DiffType.UNCHANGED:
+            if (full || options.outputKeys?.includes(key)) {
+              result += `${innerIndent}  ${key}: ${formatPrimitive(child.newValue)}`;
+              visibleItems++;
+            }
+            break;
+        }
+      }
+
+      // Add comma if not the last item and not already ending with newline
+      if (!isLast && !result.endsWith('\n')) {
+        result += ',';
+      }
+
+      // Always ensure we end with a newline before the next item
+      if (!result.endsWith('\n')) {
+        result += '\n';
+      }
+    }
   }
 
-  return value;
+  // Only add final newline if we have content
+  if (visibleItems > 0 && !result.endsWith('\n')) {
+    result += '\n';
+  }
+
+  result += `${baseIndent}}`;
+  return result;
 }
 
 /**
@@ -319,16 +325,18 @@ function formatPrimitive(value: any): string {
   }
 
   if (typeof value === 'string') {
-    return `"${value}"`;
+    // Use JavaScript object notation with single quotes
+    return `'${value}'`;
   }
 
   if (typeof value === 'number' || typeof value === 'boolean') {
     return value.toString();
   }
 
-  // For objects and arrays, use pretty JSON format
+  // For objects and arrays, use properly formatted JavaScript object notation
   if (typeof value === 'object') {
-    return JSON.stringify(value, null, 2);
+    const json = JSON.stringify(value, null, 2);
+    return json;
   }
 
   return String(value);
