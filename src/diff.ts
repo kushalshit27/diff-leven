@@ -38,7 +38,14 @@ export function createDiff(
     newValue === null
   ) {
     if (keysOnly || ignoreValues) {
-      return { type: DiffType.UNCHANGED };
+      // For ignoreValues, retain the path information for better formatting
+      return {
+        type: DiffType.UNCHANGED,
+        path,
+        oldValue,
+        newValue,
+        meta: { ignored: true },
+      };
     }
     if (oldValue === newValue) {
       return { type: DiffType.UNCHANGED, path, oldValue, newValue };

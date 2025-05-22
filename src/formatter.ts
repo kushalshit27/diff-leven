@@ -87,7 +87,10 @@ function formatValue(diff: DiffResult, useColor: boolean): string {
       return `${oldLine}\n${newLine}`;
 
     default:
-      return formatPrimitive(diff.newValue ?? diff.oldValue);
+      value = formatPrimitive(diff.newValue ?? diff.oldValue);
+      return useColor
+        ? `${colors.gray}${prefix} ${value}${colors.reset}`
+        : `${prefix} ${value}`;
   }
 }
 
@@ -181,7 +184,16 @@ function formatArrayDiff(
             visibleItems++;
             break;
           case DiffType.UNCHANGED:
-            result += `${innerIndent}  ${formatPrimitive(child.newValue)}`;
+            // Special handling for ignored values (when using ignoreValues: true)
+            if (child.meta?.ignored && child.path) {
+              result += color
+                ? `${innerIndent}${colors.gray}  ${child.path[child.path.length - 1] || ''}${colors.reset}`
+                : `${innerIndent}  ${child.path[child.path.length - 1] || ''}`;
+            } else {
+              result += color
+                ? `${innerIndent}${colors.gray}  ${formatPrimitive(child.newValue)}${colors.reset}`
+                : `${innerIndent}  ${formatPrimitive(child.newValue)}`;
+            }
             visibleItems++;
             break;
           case DiffType.CHANGED:
@@ -276,7 +288,16 @@ function formatObjectDiff(
             break;
           case DiffType.UNCHANGED:
             if (full || options.outputKeys?.includes(key)) {
-              result += `${innerIndent}  ${key}: ${formatPrimitive(child.newValue)}`;
+              // Special handling for ignored values (when using ignoreValues: true)
+              if (child.meta?.ignored) {
+                result += color
+                  ? `${innerIndent}${colors.gray}  ${key}${colors.reset}`
+                  : `${innerIndent}  ${key}`;
+              } else {
+                result += color
+                  ? `${innerIndent}${colors.gray}  ${key}: ${formatPrimitive(child.newValue)}${colors.reset}`
+                  : `${innerIndent}  ${key}: ${formatPrimitive(child.newValue)}`;
+              }
               visibleItems++;
             }
             break;

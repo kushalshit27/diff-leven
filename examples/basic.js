@@ -72,9 +72,23 @@ const userData2 = { name: 'Jane', age: 25, timestamp: Date.now() + 1000 };
 console.log('\n=== Ignore keys diff ===');
 console.log(diffString(userData1, userData2, { ignoreKeys: ['timestamp'] }));
 
-// Using ignoreValues option (new) - ignore differences in values, focus only on structure
-console.log('\n=== Ignore values diff ===');
-console.log(diffString(userData1, userData2, { ignoreValues: true }));
+// Using ignoreValues with structural differences
+const struct1 = { a: 1, b: 2, c: { d: 3 } };
+const struct2 = { a: 999, b: 888, c: { d: 777, e: 555 } };
+
+console.log('\n=== Ignore values with structural diff ===');
+console.log(diffString(struct1, struct2, { ignoreValues: true }));
+
+// Using ignoreValues with full option to show complete structure
+console.log('\n=== Ignore values with full option ===');
+console.log(diffString(struct1, struct2, { ignoreValues: true, full: true }));
+
+// Arrays with ignoreValues
+const arr3 = [1, 2, 3];
+const arr4 = [9, 8, 7, 6];
+
+console.log('\n=== Array with ignoreValues ===');
+console.log(diffString(arr3, arr4, { ignoreValues: true }));
 
 // Combining multiple options
 console.log('\n=== Combined options diff ===');
