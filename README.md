@@ -17,8 +17,7 @@
   - Strings (character-level differences)
   - Numbers, Booleans, and any serializable value
 - **Rich Output Options**:
-  - Terminal-friendly colorized output (toggleable)
-  - Git-style diff format with clear additions/removals
+  - Git-style colorized output diff format with clear additions/removals
 - **Flexible Configuration**:
   - `color`: Toggle color output (default: `true`)
   - `keysOnly`: Compare only object structure/keys (default: `false`)
