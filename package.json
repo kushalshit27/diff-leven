@@ -19,7 +19,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "examples:basic": "node examples/basic.js",
-    "examples:advanced": "node examples/advanced.js"
+    "examples:advanced": "node examples/advanced.js",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
   "homepage": "https://github.com/kushalshit27/diff-leven#readme",
   "devDependencies": {
     "eslint": "^9.27.0",
+    "husky": "9.1.7",
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",

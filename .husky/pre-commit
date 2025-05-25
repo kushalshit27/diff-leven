@@ -1,0 +1,19 @@
+
+# Ensure the build is successful
+
+npm run build
+npm run format
+npm run lint:fix
+
+# Run tests
+
+npm test
+
+# Run prettier on staged files
+
+npx pretty-quick --staged
+
+# Add back modified files to staging
+
+git add -u
+
