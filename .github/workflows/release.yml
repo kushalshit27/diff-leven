@@ -25,12 +25,8 @@ jobs:
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/v}
           CURRENT_VERSION=$(node -p "require('./package.json').version")
-          if [ "$TAG_NAME" != "$CURRENT_VERSION" ]; then
-            echo "Updating package version to $TAG_NAME"
-            npm version --no-git-tag-version "$TAG_NAME"
-          else
-            echo "package.json version ($CURRENT_VERSION) already matches tag ($TAG_NAME). Skipping version update."
-          fi
+          echo "package.json version ($CURRENT_VERSION) and tag ($TAG_NAME)"
+          npm version --no-git-tag-version --allow-same-version "$TAG_NAME"
 
       - name: Build package
         run: npm run build
