@@ -56,7 +56,7 @@ console.log(diff({ foo: 'bar' }, { foo: 'baz' }));
 
 ### `diff(a, b, options?)`
 
-Compare two values (strings, objects, arrays, etc.) and return a diff string.
+Compare two values (strings, objects, arrays, etc.) and return a formatted diff string.
 
 #### **Parameters**
 
@@ -73,18 +73,56 @@ Compare two values (strings, objects, arrays, etc.) and return a diff string.
 
 - A string representing the diff between `a` and `b`.
 
+### `diffRaw(a, b, options?)`
+
+Compare two values (strings, objects, arrays, etc.) and return a structured diff result object.
+
+#### **Parameters**
+
+- `a`, `b`: Anything serializable (object, array, string, number, etc.)
+- `options` _(optional object)_:
+  - `color` _(boolean)_: Use colors in output (default: `true`)
+  - `keysOnly` _(boolean)_: Only compare object keys (default: `false`)
+  - `full` _(boolean)_: Output the entire JSON tree (default: `false`)
+  - `outputKeys` _(string[])_: Always include these keys in output (default: `[]`)
+  - `ignoreKeys` _(string[])_: Ignore these keys when comparing (default: `[]`)
+  - `ignoreValues` _(boolean)_: Ignore value differences (default: `false`)
+
+#### **Returns**
+
+- A structured object representing the diff between `a` and `b`.
+
 #### **Examples**
 
 ```js
-const { diff } = require('diff-leven');
+const { diff, diffRaw } = require('diff-leven');
 
-// Basic diff
+// Basic diff (string output)
 console.log(diff({ foo: 'bar' }, { foo: 'baz' }));
 // Output:
 //  {
 // -  foo: "bar"
 // +  foo: "baz"
 //  }
+
+// Raw diff object
+const rawDiff = diffRaw({ foo: 'bar' }, { foo: 'baz' });
+console.log(JSON.stringify(rawDiff, null, 2));
+// Output:
+// {
+//   "type": "changed",
+//   "path": [],
+//   "oldValue": { "foo": "bar" },
+//   "newValue": { "foo": "baz" },
+//   "children": [
+//     {
+//       "type": "changed",
+//       "path": ["foo"],
+//       "oldValue": "bar",
+//       "newValue": "baz"
+//     }
+//   ]
+// }
 
 // No colors
 console.log(diff({ foo: 'bar' }, { foo: 'baz' }, { color: false }));
@@ -117,8 +155,7 @@ console.log(
 console.log(
   diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { ignoreValues: true }),
 );
-// Output:
-// { foo: { __old: 'bar', __new: 'baz' } }
+// Output showing structural differences only
 
 // Output specific keys
 console.log(
@@ -145,8 +182,6 @@ console.log(
     },
   ),
 );
-// Output:
-// { foo: { __old: 'bar', __new: 'baz' }, b: 3 }
 ```
 
 ---

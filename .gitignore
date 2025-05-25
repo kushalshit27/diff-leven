@@ -103,8 +103,8 @@ dist
 # vuepress v2.x temp and cache directory
 .temp
 .cache
-
 .clinerules
+CLAUDE.md
 
 # vitepress build output
 **/.vitepress/dist
@@ -144,3 +144,4 @@ dist
 
 # Build files
 /dist
+

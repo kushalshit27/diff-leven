@@ -1,60 +1,40 @@
-import { DiffEngine } from './core/DiffEngine';
-import { DiffOptions, DiffResult, DiffValue } from './types';
-
-// Create a single instance of the DiffEngine to reuse
-const diffEngine = new DiffEngine();
+import { createDiff } from './diff';
+import { formatDiff } from './formatter';
+import { DiffOptions, DiffResult, DiffType, SerializableValue } from './types';
 
 /**
- * Compare two values (objects, arrays, primitives) and return their differences
+ * Compare two values and generate a detailed diff result object
  *
- * @param oldValue - The original value
- * @param newValue - The new value to compare against
- * @param options - Options for controlling diff behavior
- * @returns A diff result object showing the differences
- *
- * @example
- * ```javascript
- * import { diff } from 'diff-leven';
- *
- * const result = diff({ foo: 'bar', count: 5 }, { foo: 'baz', count: 5 });
- * // result: { foo: { __old: 'bar', __new: 'baz' } }
- * ```
+ * @param oldValue - Original value to compare from
+ * @param newValue - New value to compare against
+ * @param options - Configuration options for the diff
+ * @returns A structured diff result object
  */
-export function diff(
-  oldValue: DiffValue,
-  newValue: DiffValue,
+export function diffRaw(
+  oldValue: SerializableValue,
+  newValue: SerializableValue,
   options: DiffOptions = {},
 ): DiffResult {
-  return diffEngine.diff(oldValue, newValue, options);
+  return createDiff(oldValue, newValue, options);
 }
 
 /**
- * Compare two values and return a formatted string representation of the differences
+ * Compare two values and generate a formatted diff string
  *
- * @param oldValue - The original value
- * @param newValue - The new value to compare against
- * @param options - Options for controlling diff behavior and output
- * @returns A formatted string showing the differences
- *
- * @example
- * ```javascript
- * import { diffString } from 'diff-leven';
- *
- * const output = diffString({ foo: 'bar' }, { foo: 'baz' });
- * // Output (with colors):
- * // {
- * //   foo: - "bar"
- * //        + "baz"
- * // }
- * ```
+ * @param oldValue - Original value to compare from
+ * @param newValue - New value to compare against
+ * @param options - Configuration options for the diff
+ * @returns A formatted string representation of the diff
  */
-export function diffString(
-  oldValue: DiffValue,
-  newValue: DiffValue,
+export function diff(
+  oldValue: SerializableValue,
+  newValue: SerializableValue,
   options: DiffOptions = {},
 ): string {
-  return diffEngine.diffToString(oldValue, newValue, options);
+  const diffResult = diffRaw(oldValue, newValue, options);
+  return formatDiff(diffResult, options);
 }
 
-// Re-export types
-export type { DiffOptions, DiffResult };
+// Export types
+export type { DiffOptions, DiffResult, SerializableValue };
+export { DiffType };
