@@ -37,12 +37,6 @@ export interface DiffOptions {
    * @default false
    */
   ignoreValues?: boolean;
-
-  /**
-   * Use pretty-printed JSON style formatting for objects
-   * @default false
-   */
-  prettyPrint?: boolean;
 }
 
 /**

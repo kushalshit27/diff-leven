@@ -18,7 +18,8 @@
     "format:fix": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:examples": "node examples/basic.js"
+    "examples:basic": "node examples/basic.js",
+    "examples:advanced": "node examples/advanced.js"
   },
   "repository": {
     "type": "git",
