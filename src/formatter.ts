@@ -18,7 +18,7 @@ export function formatDiff(
   diff: DiffResult,
   options: DiffOptions = {},
 ): string {
-  const { color = true, full = false } = options;
+  const { color = true, full = false, withSimilarity = false } = options;
 
   // For unchanged values with no children, we may skip them unless full output is requested
   if (
@@ -31,7 +31,7 @@ export function formatDiff(
 
   // Handle primitive values
   if (!diff.children || diff.children.length === 0) {
-    return formatValue(diff, color);
+    return formatValue(diff, color, withSimilarity);
   }
 
   // Handle objects and arrays
@@ -41,7 +41,11 @@ export function formatDiff(
 /**
  * Format a primitive value diff (added, removed, changed)
  */
-function formatValue(diff: DiffResult, useColor: boolean): string {
+function formatValue(
+  diff: DiffResult,
+  useColor: boolean,
+  withSimilarity: boolean = false,
+): string {
   const prefix = getPrefix(diff.type);
   let value = '';
 
@@ -62,9 +66,10 @@ function formatValue(diff: DiffResult, useColor: boolean): string {
       const oldVal = formatPrimitive(diff.oldValue);
       const newVal = formatPrimitive(diff.newValue);
 
-      // Add similarity information for strings if available
+      // Add similarity information for strings if available and withSimilarity is true
       let similarityInfo = '';
       if (
+        withSimilarity &&
         diff.meta?.similarity !== undefined &&
         typeof diff.oldValue === 'string' &&
         typeof diff.newValue === 'string'
@@ -129,7 +134,7 @@ function formatArrayDiff(
   options: DiffOptions,
   indent: number = 0,
 ): string {
-  const { color = true, full = false } = options;
+  const { color = true, full = false, withSimilarity = false } = options;
   const baseIndent = ' '.repeat(indent);
   const innerIndent = ' '.repeat(indent + 2);
   let result = `[\n`;
@@ -199,9 +204,9 @@ function formatArrayDiff(
           case DiffType.CHANGED:
             result += color
               ? `${innerIndent}${colors.red}- ${formatPrimitive(child.oldValue)}${colors.reset}\n` +
-                `${innerIndent}${colors.green}+ ${formatPrimitive(child.newValue)}${colors.reset}`
+                `${innerIndent}${colors.green}+ ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? (color ? `${colors.gray} (${Math.round(child.meta.similarity * 100)}% similar)${colors.reset}` : ` (${Math.round(child.meta.similarity * 100)}% similar)`) : ''}${colors.reset}`
               : `${innerIndent}- ${formatPrimitive(child.oldValue)}\n` +
-                `${innerIndent}+ ${formatPrimitive(child.newValue)}`;
+                `${innerIndent}+ ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? ` (${Math.round(child.meta.similarity * 100)}% similar)` : ''}`;
             visibleItems++;
             break;
         }
@@ -224,7 +229,7 @@ function formatObjectDiff(
   options: DiffOptions,
   indent: number = 0,
 ): string {
-  const { color = true, full = false } = options;
+  const { color = true, full = false, withSimilarity = false } = options;
   const baseIndent = ' '.repeat(indent);
   const innerIndent = ' '.repeat(indent + 2);
   let result = `{\n`;
@@ -281,9 +286,9 @@ function formatObjectDiff(
           case DiffType.CHANGED:
             result += color
               ? `${innerIndent}${colors.red}- ${key}: ${formatPrimitive(child.oldValue)}${colors.reset}\n` +
-                `${innerIndent}${colors.green}+ ${key}: ${formatPrimitive(child.newValue)}${colors.reset}`
+                `${innerIndent}${colors.green}+ ${key}: ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? (color ? `${colors.gray} (${Math.round(child.meta.similarity * 100)}% similar)${colors.reset}` : ` (${Math.round(child.meta.similarity * 100)}% similar)`) : ''}${colors.reset}`
               : `${innerIndent}- ${key}: ${formatPrimitive(child.oldValue)}\n` +
-                `${innerIndent}+ ${key}: ${formatPrimitive(child.newValue)}`;
+                `${innerIndent}+ ${key}: ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? ` (${Math.round(child.meta.similarity * 100)}% similar)` : ''}`;
             visibleItems++;
             break;
           case DiffType.UNCHANGED:
@@ -344,7 +349,7 @@ function getPrefix(type: DiffType | string): string {
 /**
  * Format a primitive value for output
  */
-function formatPrimitive(value: any): string {
+function formatPrimitive(value: unknown): string {
   if (value === undefined) {
     return 'undefined';
   }
