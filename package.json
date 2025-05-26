@@ -27,7 +27,11 @@
     "url": "git+https://github.com/kushalshit27/diff-leven.git"
   },
   "keywords": [
-    "diff"
+    "diff",
+    "leven",
+    "compare",
+    "levenshtein",
+    "comparison"
   ],
   "author": "kushalshit27",
   "license": "MIT",
