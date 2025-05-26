@@ -37,6 +37,12 @@ export interface DiffOptions {
    * @default false
    */
   ignoreValues?: boolean;
+
+  /**
+   * Show similarity info for string changes (Levenshtein)
+   * @default false
+   */
+  withSimilarity?: boolean;
 }
 
 /**

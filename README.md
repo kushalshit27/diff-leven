@@ -158,6 +158,14 @@ console.log(
 );
 // Output showing structural differences only
 
+// Show similarity info for string changes
+console.log(
+  diff('hello world', 'hello there', { color: true, withSimilarity: true }),
+);
+// Output:
+// - 'hello world'
+// + 'hello there' (73% similar)
+
 // Output specific keys
 console.log(
   diff({ foo: 'bar', b: 3 }, { foo: 'baz', b: 3 }, { outputKeys: ['foo'] }),
@@ -189,14 +197,15 @@ console.log(
 
 ## ⚙️ Options Matrix
 
-| Option         | Type     | Default | Description                                  |
-| -------------- | -------- | ------- | -------------------------------------------- |
-| `color`        | boolean  | true    | Use colorized output                         |
-| `keysOnly`     | boolean  | false   | Only compare object keys                     |
-| `full`         | boolean  | false   | Output the entire object tree                |
-| `outputKeys`   | string[] | []      | Always include these keys in output          |
-| `ignoreKeys`   | string[] | []      | Ignore these keys when comparing             |
-| `ignoreValues` | boolean  | false   | Ignore value differences, focus on structure |
+| Option           | Type     | Default | Description                                  |
+| ---------------- | -------- | ------- | -------------------------------------------- |
+| `color`          | boolean  | true    | Use colorized output                         |
+| `keysOnly`       | boolean  | false   | Only compare object keys                     |
+| `full`           | boolean  | false   | Output the entire object tree                |
+| `outputKeys`     | string[] | []      | Always include these keys in output          |
+| `ignoreKeys`     | string[] | []      | Ignore these keys when comparing             |
+| `ignoreValues`   | boolean  | false   | Ignore value differences, focus on structure |
+| `withSimilarity` | boolean  | false   | Show similarity info for string changes      |
 
 ---
 
