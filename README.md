@@ -2,7 +2,7 @@
 
 > Git-like diff between two strings or objects, powered by the Levenshtein distance algorithm
 
-[![npm version](https://badge.fury.io/js/diff-leven.svg)](https://badge.fury.io/js/diff-leven)
+[![npm version](https://img.shields.io/npm/v/diff-leven)](https://img.shields.io/npm/v/diff-leven)
 [![npm](https://img.shields.io/npm/dm/diff-leven.svg)](https://www.npmjs.com/package/diff-leven)
 ![License](https://img.shields.io/npm/l/diff-leven.svg)
 
