@@ -2,7 +2,7 @@
 # Ensure the build is successful
 
 npm run build
-npm run format
+npm run format:fix
 npm run lint:fix
 
 # Run tests

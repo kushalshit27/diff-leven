@@ -2,7 +2,7 @@
 
 // Import the library
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { diff, diffRaw } = require('../dist');
+const { diff, diffRaw, isDiff } = require('../dist');
 
 // ==========================================
 // Basic Usage Examples
@@ -144,4 +144,90 @@ console.log(
   diff(config1, config2, {
     ignoreKeys: ['password', 'username'],
   }),
+);
+
+// ==========================================
+// isDiff Boolean Check Examples
+// ==========================================
+
+console.log('\n=== isDiff Basic Usage ===');
+// Simple identical check
+console.log(
+  'Simple check (identical):',
+  isDiff({ a: 1, b: 2 }, { a: 1, b: 2 }),
+);
+// Simple different check
+console.log(
+  'Simple check (different):',
+  isDiff({ a: 1, b: 2 }, { a: 1, b: 3 }),
+);
+
+// With ignoreKeys option
+const user1 = { id: 123, name: 'John', lastLogin: Date.now() };
+const user2 = { id: 123, name: 'John', lastLogin: Date.now() + 1000 };
+console.log(
+  'With ignoreKeys (should be false):',
+  isDiff(user1, user2, { ignoreKeys: ['lastLogin'] }),
+);
+
+// With keysOnly option - only structure matters
+const form1 = { name: 'John', email: 'john@example.com', age: 30 };
+const form2 = { name: 'Jane', email: 'jane@example.com', age: 25 };
+console.log(
+  'With keysOnly (should be false):',
+  isDiff(form1, form2, { keysOnly: true }),
+);
+
+// With ignoreValues option - only structure matters
+console.log(
+  'With ignoreValues on equal objects (should be false):',
+  isDiff(form1, form2, { ignoreValues: true }),
+);
+
+// With ignoreValues but different structure
+const form3 = { name: 'John', email: 'john@example.com', age: 30 };
+const form4 = {
+  name: 'Jane',
+  email: 'jane@example.com',
+  address: '123 Main St',
+};
+console.log(
+  'With ignoreValues but different keys (should be true):',
+  isDiff(form3, form4, { ignoreValues: true }),
+);
+
+// Complex nested example
+const userProfile1 = {
+  id: 123,
+  name: 'User',
+  preferences: {
+    theme: 'dark',
+    notifications: {
+      email: true,
+      push: false,
+    },
+  },
+  history: [1, 2, 3],
+};
+
+const userProfile2 = {
+  id: 123,
+  name: 'User',
+  preferences: {
+    theme: 'light', // changed
+    notifications: {
+      email: true,
+      push: false,
+    },
+  },
+  history: [1, 2, 3],
+};
+
+console.log(
+  'Complex nested objects (should be true):',
+  isDiff(userProfile1, userProfile2),
+);
+console.log(
+  'Complex with ignoreKeys (should be false):',
+  isDiff(userProfile1, userProfile2, { ignoreKeys: ['theme'] }),
 );
