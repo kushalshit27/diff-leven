@@ -35,6 +35,23 @@ export function diff(
   return formatDiff(diffResult, options);
 }
 
+/**
+ * Check if two values are different
+ *
+ * @param oldValue - Original value to compare from
+ * @param newValue - New value to compare against
+ * @param options - Configuration options for the diff
+ * @returns A boolean indicating if the values are different
+ */
+export function isDiff(
+  oldValue: SerializableValue,
+  newValue: SerializableValue,
+  options: DiffOptions = {},
+): boolean {
+  const diffResult = diffRaw(oldValue, newValue, options);
+  return diffResult.type !== DiffType.UNCHANGED;
+}
+
 // Export types
 export type { DiffOptions, DiffResult, SerializableValue };
 export { DiffType };

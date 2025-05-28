@@ -93,10 +93,26 @@ Compare two values (strings, objects, arrays, etc.) and return a structured diff
 
 - A structured object representing the diff between `a` and `b`.
 
+### `isDiff(a, b, options?)`
+
+Check if two values (strings, objects, arrays, etc.) are different and return a boolean result.
+
+#### **Parameters**
+
+- `a`, `b`: Anything serializable (object, array, string, number, etc.)
+- `options` _(optional object)_:
+  - `keysOnly` _(boolean)_: Only compare object keys (default: `false`)
+  - `ignoreKeys` _(string[])_: Ignore these keys when comparing (default: `[]`)
+  - `ignoreValues` _(boolean)_: Ignore value differences (default: `false`)
+
+#### **Returns**
+
+- A boolean indicating if the values are different (`true` = different, `false` = identical).
+
 #### **Examples**
 
 ```js
-const { diff, diffRaw } = require('diff-leven');
+const { diff, diffRaw, isDiff } = require('diff-leven');
 
 // Basic diff (string output)
 console.log(diff({ foo: 'bar' }, { foo: 'baz' }));
@@ -124,6 +140,23 @@ console.log(JSON.stringify(rawDiff, null, 2));
 //     }
 //   ]
 // }
+
+// Boolean diff check
+console.log(isDiff({ foo: 'bar' }, { foo: 'baz' }));
+// Output: true
+
+console.log(isDiff({ foo: 'bar' }, { foo: 'bar' }));
+// Output: false
+
+// With options
+console.log(
+  isDiff(
+    { foo: 'bar', timestamp: 123 },
+    { foo: 'bar', timestamp: 456 },
+    { ignoreKeys: ['timestamp'] },
+  ),
+);
+// Output: false (identical when ignoring timestamp)
 
 // No colors
 console.log(diff({ foo: 'bar' }, { foo: 'baz' }, { color: false }));
