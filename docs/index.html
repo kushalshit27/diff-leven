@@ -394,7 +394,10 @@ Example:
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/diff-leven@0.3.0/dist/index.min.js"></script>
+    <script type="module">
+      import { diff } from 'https://cdn.jsdelivr.net/npm/diff-leven@0.3.1/+esm';
+      window.diff = diff;
+    </script>
     <script>
       // Check what the CDN script exports
       console.log(
@@ -406,17 +409,10 @@ Example:
             key.includes('leven'),
         ),
       );
-
-      console.log('diff', isDiff({ a: 1 }, { b: 1 }));
       // Also check for common export patterns
       console.log('window.exports:', window.exports);
       console.log('window.module:', window.module);
       console.log('window.diffLeven:', window.diffLeven);
-
-      // Load basic example by default after page loads
-      document.addEventListener('DOMContentLoaded', function () {
-        loadExample('basic');
-      });
 
       const examples = {
         basic: {
@@ -537,6 +533,11 @@ Example:
           return str;
         }
       }
+
+      // Load basic example by default after page loads
+      document.addEventListener('DOMContentLoaded', function () {
+        loadExample('basic');
+      });
 
       function generateDiff() {
         const objectA = document.getElementById('objectA').value;
