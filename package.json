@@ -1,6 +1,6 @@
 {
   "name": "diff-leven",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Git like diff between two strings, using the Levenshtein distance algorithm",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
