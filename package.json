@@ -40,13 +40,13 @@
   },
   "homepage": "https://github.com/kushalshit27/diff-leven#readme",
   "devDependencies": {
-    "eslint": "^9.27.0",
+    "eslint": "^9.28.0",
     "husky": "9.1.7",
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.32.1",
+    "typescript-eslint": "^8.33.0",
     "vitest": "^3.1.4"
   },
   "engines": {
