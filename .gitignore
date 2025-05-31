@@ -107,6 +107,7 @@ dist
 .temp
 .cache
 .clinerules
+.claude/
 CLAUDE.md
 
 # vitepress build output
@@ -147,4 +148,5 @@ CLAUDE.md
 
 # Build files
 /dist
+
 

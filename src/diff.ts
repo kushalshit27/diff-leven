@@ -79,8 +79,8 @@ export function createDiff(
 
   // Handle objects
   return compareObjects(
-    oldValue as Record<string, any>,
-    newValue as Record<string, any>,
+    oldValue as Record<string, SerializableValue>,
+    newValue as Record<string, SerializableValue>,
     options,
     path,
   );
@@ -90,8 +90,8 @@ export function createDiff(
  * Compare two objects and generate a diff
  */
 function compareObjects(
-  oldObj: Record<string, any>,
-  newObj: Record<string, any>,
+  oldObj: Record<string, SerializableValue>,
+  newObj: Record<string, SerializableValue>,
   options: DiffOptions,
   path: string[],
 ): DiffResult {
@@ -137,8 +137,8 @@ function compareObjects(
  * Uses Levenshtein distance for finding optimal matching between array elements
  */
 function compareArrays(
-  oldArray: any[],
-  newArray: any[],
+  oldArray: SerializableValue[],
+  newArray: SerializableValue[],
   options: DiffOptions,
   path: string[],
 ): DiffResult {
