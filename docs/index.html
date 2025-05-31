@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>diff-leven Playground</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f5f5f5;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 40px;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-size: 2.5em;
+      }
+
+      .subtitle {
+        color: #7f8c8d;
+        font-size: 1.2em;
+        margin-bottom: 20px;
+      }
+
+      .github-link {
+        display: inline-block;
+        background: #333;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background 0.3s;
+      }
+
+      .github-link:hover {
+        background: #555;
+      }
+
+      .playground {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .input-panel {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .input-panel h3 {
+        margin-bottom: 15px;
+        color: #2c3e50;
+      }
+
+      textarea {
+        width: 100%;
+        height: 200px;
+        border: 2px solid #ecf0f1;
+        border-radius: 5px;
+        padding: 15px;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 14px;
+        resize: vertical;
+        transition: border-color 0.3s;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #3498db;
+      }
+
+      .controls {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .controls h3 {
+        margin-bottom: 15px;
+        color: #2c3e50;
+      }
+
+      .options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .option input[type='checkbox'] {
+        transform: scale(1.2);
+      }
+
+      .option label {
+        cursor: pointer;
+      }
+
+      .preset-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      .preset-btn {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+        font-size: 14px;
+      }
+
+      .preset-btn:hover {
+        background: #2980b9;
+      }
+
+      .diff-btn {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background 0.3s;
+        width: 100%;
+      }
+
+      .diff-btn:hover {
+        background: #c0392b;
+      }
+
+      .output {
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 40px;
+      }
+
+      .output h3 {
+        margin-bottom: 15px;
+        color: #ecf0f1;
+      }
+
+      .output pre {
+        background: #34495e;
+        padding: 15px;
+        border-radius: 5px;
+        overflow-x: auto;
+        font-size: 14px;
+        line-height: 1.4;
+        border-left: 4px solid #e74c3c;
+      }
+
+      .examples {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .examples h3 {
+        margin-bottom: 20px;
+        color: #2c3e50;
+      }
+
+      .example-item {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        border-left: 4px solid #3498db;
+      }
+
+      .example-item h4 {
+        margin-bottom: 10px;
+        color: #2c3e50;
+      }
+
+      .example-item p {
+        color: #7f8c8d;
+        margin-bottom: 10px;
+      }
+
+      .example-btn {
+        background: #27ae60;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background 0.3s;
+      }
+
+      .example-btn:hover {
+        background: #219a52;
+      }
+
+      .error {
+        background: #e74c3c;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+
+      @media (max-width: 768px) {
+        .playground {
+          grid-template-columns: 1fr;
+        }
+
+        .options {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>diff-leven</h1>
+        <p class="subtitle">
+          Interactive playground for Git-like diffs using Levenshtein distance
+        </p>
+        <a
+          href="https://github.com/kushalshit27/diff-leven"
+          class="github-link"
+          target="_blank"
+        >
+          View on GitHub
+        </a>
+      </header>
+
+      <div class="playground">
+        <div class="input-panel">
+          <h3>Object A (Before)</h3>
+          <textarea
+            id="objectA"
+            placeholder='Enter JSON object, array, or string...
+Example:
+{
+  "name": "John",
+  "age": 30,
+  "city": "New York"
+}'
+          ></textarea>
+        </div>
+        <div class="input-panel">
+          <h3>Object B (After)</h3>
+          <textarea
+            id="objectB"
+            placeholder='Enter JSON object, array, or string...
+Example:
+{
+  "name": "Jane",
+  "age": 30,
+  "city": "Boston"
+}'
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="controls">
+        <h3>Options</h3>
+        <div class="options">
+          <div class="option">
+            <input type="checkbox" id="color" checked />
+            <label for="color">Color output</label>
+          </div>
+          <div class="option">
+            <input type="checkbox" id="keysOnly" />
+            <label for="keysOnly">Keys only (structure comparison)</label>
+          </div>
+          <div class="option">
+            <input type="checkbox" id="full" />
+            <label for="full">Full output (show entire tree)</label>
+          </div>
+          <div class="option">
+            <input type="checkbox" id="ignoreValues" />
+            <label for="ignoreValues">Ignore values (structure only)</label>
+          </div>
+        </div>
+
+        <h4>Preset Examples</h4>
+        <div class="preset-buttons">
+          <button class="preset-btn" onclick="loadExample('basic')">
+            Basic Objects
+          </button>
+          <button class="preset-btn" onclick="loadExample('nested')">
+            Nested Objects
+          </button>
+          <button class="preset-btn" onclick="loadExample('arrays')">
+            Arrays
+          </button>
+          <button class="preset-btn" onclick="loadExample('strings')">
+            Strings
+          </button>
+          <button class="preset-btn" onclick="loadExample('complex')">
+            Complex Config
+          </button>
+        </div>
+
+        <button class="diff-btn" onclick="generateDiff()">Generate Diff</button>
+      </div>
+
+      <div class="output" id="outputSection" style="display: none">
+        <h3>Diff Output</h3>
+        <pre id="diffOutput"></pre>
+      </div>
+
+      <div class="examples">
+        <h3>Usage Examples</h3>
+
+        <div class="example-item">
+          <h4>Basic Object Comparison</h4>
+          <p>Compare two simple objects with different values</p>
+          <button class="example-btn" onclick="loadExample('basic')">
+            Load Example
+          </button>
+        </div>
+
+        <div class="example-item">
+          <h4>Nested Objects</h4>
+          <p>Deep comparison of nested object structures</p>
+          <button class="example-btn" onclick="loadExample('nested')">
+            Load Example
+          </button>
+        </div>
+
+        <div class="example-item">
+          <h4>Array Comparison</h4>
+          <p>Compare arrays with different elements</p>
+          <button class="example-btn" onclick="loadExample('arrays')">
+            Load Example
+          </button>
+        </div>
+
+        <div class="example-item">
+          <h4>String Comparison</h4>
+          <p>Levenshtein distance-based string comparison</p>
+          <button class="example-btn" onclick="loadExample('strings')">
+            Load Example
+          </button>
+        </div>
+
+        <div class="example-item">
+          <h4>Complex Configuration</h4>
+          <p>Real-world configuration file comparison</p>
+          <button class="example-btn" onclick="loadExample('complex')">
+            Load Example
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/diff-leven@0.3.0/dist/index.min.js"></script>
+    <script>
+      // Check what the CDN script exports
+      console.log(
+        'Available exports:',
+        Object.keys(window).filter(
+          (key) =>
+            key.includes('diff') ||
+            key.includes('Diff') ||
+            key.includes('leven'),
+        ),
+      );
+
+      console.log('diff', isDiff({ a: 1 }, { b: 1 }));
+      // Also check for common export patterns
+      console.log('window.exports:', window.exports);
+      console.log('window.module:', window.module);
+      console.log('window.diffLeven:', window.diffLeven);
+
+      // Load basic example by default after page loads
+      document.addEventListener('DOMContentLoaded', function () {
+        loadExample('basic');
+      });
+
+      const examples = {
+        basic: {
+          a: `{
+  "name": "John",
+  "age": 30,
+  "city": "New York"
+}`,
+          b: `{
+  "name": "Jane",
+  "age": 30,
+  "city": "Boston"
+}`,
+        },
+        nested: {
+          a: `{
+  "user": {
+    "name": "Alice",
+    "profile": {
+      "age": 30,
+      "location": "New York",
+      "preferences": {
+        "theme": "dark",
+        "notifications": true
+      }
+    }
+  }
+}`,
+          b: `{
+  "user": {
+    "name": "Alice",
+    "profile": {
+      "age": 31,
+      "location": "Boston",
+      "preferences": {
+        "theme": "light",
+        "notifications": false
+      }
+    }
+  }
+}`,
+        },
+        arrays: {
+          a: `[
+  {"id": 1, "name": "Item 1", "value": 10},
+  {"id": 2, "name": "Item 2", "value": 20},
+  {"id": 3, "name": "Item 3", "value": 30}
+]`,
+          b: `[
+  {"id": 1, "name": "Item 1", "value": 15},
+  {"id": 2, "name": "Updated Item", "value": 20},
+  {"id": 4, "name": "New Item", "value": 40}
+]`,
+        },
+        strings: {
+          a: `"The quick brown fox jumps over the lazy dog"`,
+          b: `"The quick brown fox jumped over a lazy dog"`,
+        },
+        complex: {
+          a: `{
+  "server": {
+    "host": "localhost",
+    "port": 3000,
+    "ssl": false
+  },
+  "database": {
+    "host": "db.example.com",
+    "port": 5432,
+    "name": "myapp_dev"
+  },
+  "cache": {
+    "enabled": true,
+    "ttl": 3600
+  }
+}`,
+          b: `{
+  "server": {
+    "host": "production.example.com",
+    "port": 8080,
+    "ssl": true
+  },
+  "database": {
+    "host": "db-prod.example.com",
+    "port": 5432,
+    "name": "myapp_prod"
+  },
+  "cache": {
+    "enabled": true,
+    "ttl": 7200,
+    "provider": "redis"
+  },
+  "logging": {
+    "level": "info",
+    "format": "json"
+  }
+}`,
+        },
+      };
+
+      function loadExample(exampleName) {
+        const example = examples[exampleName];
+        if (example) {
+          document.getElementById('objectA').value = example.a;
+          document.getElementById('objectB').value = example.b;
+          generateDiff();
+        }
+      }
+
+      function parseValue(str) {
+        str = str.trim();
+        if (!str) return '';
+
+        // Try to parse as JSON first
+        try {
+          return JSON.parse(str);
+        } catch {
+          // If JSON parsing fails, return as string
+          return str;
+        }
+      }
+
+      function generateDiff() {
+        const objectA = document.getElementById('objectA').value;
+        const objectB = document.getElementById('objectB').value;
+        const outputSection = document.getElementById('outputSection');
+        const diffOutput = document.getElementById('diffOutput');
+
+        if (!objectA || !objectB) {
+          diffOutput.innerHTML =
+            '<div class="error">Please enter both objects to compare</div>';
+          outputSection.style.display = 'block';
+          return;
+        }
+
+        try {
+          const parsedA = parseValue(objectA);
+          const parsedB = parseValue(objectB);
+
+          const options = {
+            color: document.getElementById('color').checked,
+            keysOnly: document.getElementById('keysOnly').checked,
+            full: document.getElementById('full').checked,
+            ignoreValues: document.getElementById('ignoreValues').checked,
+          };
+
+          // Try to find the diff function from various possible exports
+          let diffFunction;
+
+          // Check for direct exports
+          if (typeof window.diff === 'function') {
+            diffFunction = window.diff;
+          } else if (
+            window.exports &&
+            typeof window.exports.diff === 'function'
+          ) {
+            diffFunction = window.exports.diff;
+          } else if (
+            window.module &&
+            window.module.exports &&
+            typeof window.module.exports.diff === 'function'
+          ) {
+            diffFunction = window.module.exports.diff;
+          } else if (
+            window.diffLeven &&
+            typeof window.diffLeven.diff === 'function'
+          ) {
+            diffFunction = window.diffLeven.diff;
+          } else {
+            // Try to access the CommonJS exports directly
+            try {
+              // The CDN might export as CommonJS, try to access it
+              const module = { exports: {} };
+              window.module = module;
+              window.exports = module.exports;
+
+              // Re-load the script content to get exports
+              diffFunction = require('diff-leven').diff;
+            } catch (e) {
+              throw new Error(
+                'diff function not found. Available on window: ' +
+                  Object.keys(window)
+                    .filter((key) => key.includes('diff'))
+                    .join(', '),
+              );
+            }
+          }
+
+          const result = diffFunction(parsedA, parsedB, options);
+
+          // Convert ANSI color codes to HTML for better display
+          let htmlResult = result
+            .replace(/\033\[31m/g, '<span style="color: #e74c3c;">') // red
+            .replace(/\033\[32m/g, '<span style="color: #27ae60;">') // green
+            .replace(/\033\[33m/g, '<span style="color: #f39c12;">') // yellow
+            .replace(/\033\[34m/g, '<span style="color: #3498db;">') // blue
+            .replace(/\033\[35m/g, '<span style="color: #9b59b6;">') // magenta
+            .replace(/\033\[36m/g, '<span style="color: #1abc9c;">') // cyan
+            .replace(/\033\[0m/g, '</span>') // reset
+            .replace(/\033\[39m/g, '</span>'); // default color
+
+          diffOutput.innerHTML = htmlResult || 'No differences found';
+          outputSection.style.display = 'block';
+        } catch (error) {
+          diffOutput.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+          outputSection.style.display = 'block';
+        }
+      }
+    </script>
+  </body>
+</html>
