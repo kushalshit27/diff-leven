@@ -61,8 +61,8 @@ export enum DiffType {
 export interface DiffResult {
   type: DiffType;
   path?: string[];
-  oldValue?: any;
-  newValue?: any;
+  oldValue?: SerializableValue;
+  newValue?: SerializableValue;
   children?: DiffResult[];
   /**
    * Additional metadata about the diff, such as Levenshtein distance metrics
@@ -73,7 +73,7 @@ export interface DiffResult {
     /** Similarity ratio (0-1) where 1 means identical */
     similarity?: number;
     /** Any other metadata properties */
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
