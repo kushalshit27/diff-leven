@@ -2,6 +2,12 @@
 
 All notable changes to the diff-leven project will be documented in this file.
 
+## [0.3.1] - 2025-05-31
+
+### New
+
+- Added CommonJS (CJS) support for better compatibility
+
 ## [0.3.0] - 2025-05-28
 
 ### New

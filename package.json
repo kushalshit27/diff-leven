@@ -1,10 +1,22 @@
 {
   "name": "diff-leven",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "Git like diff between two strings, using the Levenshtein distance algorithm",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
   "files": [
     "dist"
   ],
