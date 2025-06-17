@@ -149,4 +149,5 @@ CLAUDE.md
 # Build files
 /dist
 
-
+# Ignore mcp test configuration files
+.mcp.json
