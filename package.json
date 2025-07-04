@@ -62,9 +62,12 @@
     "vitest": "^3.2.4"
   },
   "engines": {
-    "node": ">=20.18.1"
+    "node": ">=18"
   },
   "dependencies": {
     "leven": "^4.0.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.44.1"
   }
 }
