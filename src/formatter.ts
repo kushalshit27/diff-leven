@@ -80,16 +80,16 @@ function formatValue(
           : ` (${similarity}% similar)`;
       }
 
-      // Git-style diff format: -old value followed by +new value
-      const oldLine = useColor
-        ? `${colors.red}- ${oldVal}${colors.reset}`
-        : `- ${oldVal}`;
-
+      // Git-style diff format: +new value followed by -old value
       const newLine = useColor
         ? `${colors.green}+ ${newVal}${similarityInfo}${colors.reset}`
         : `+ ${newVal}${similarityInfo}`;
 
-      return `${oldLine}\n${newLine}`;
+      const oldLine = useColor
+        ? `${colors.red}- ${oldVal}${colors.reset}`
+        : `- ${oldVal}`;
+
+      return `${newLine}\n${oldLine}`;
 
     default:
       value = formatPrimitive(diff.newValue ?? diff.oldValue);
@@ -124,6 +124,35 @@ function formatComplex(
   return Array.isArray(diff.oldValue) || Array.isArray(diff.newValue)
     ? formatArrayDiff(diff, options, indent)
     : formatObjectDiff(diff, options, indent);
+}
+
+/**
+ * Helper to render "+ then -" blocks for changed values.
+ */
+function renderChangedBlock(
+  newValue: unknown,
+  oldValue: unknown,
+  options: { color: boolean; withSimilarity: boolean },
+  indent: string,
+  similarity?: number,
+  key?: string,
+): string {
+  const { color, withSimilarity } = options;
+  let similarityInfo = '';
+  if (withSimilarity && similarity !== undefined) {
+    similarityInfo = color
+      ? `${colors.gray} (${Math.round(similarity * 100)}% similar)${colors.reset}`
+      : ` (${Math.round(similarity * 100)}% similar)`;
+  }
+
+  const keyPrefix = key ? `${key}: ` : '';
+  const newLine = color
+    ? `${indent}${colors.green}+ ${keyPrefix}${formatPrimitive(newValue)}${similarityInfo}${colors.reset}`
+    : `${indent}+ ${keyPrefix}${formatPrimitive(newValue)}${similarityInfo}`;
+  const oldLine = color
+    ? `${indent}${colors.red}- ${keyPrefix}${formatPrimitive(oldValue)}${colors.reset}`
+    : `${indent}- ${keyPrefix}${formatPrimitive(oldValue)}`;
+  return `${newLine}\n${oldLine}`;
 }
 
 /**
@@ -202,11 +231,13 @@ function formatArrayDiff(
             visibleItems++;
             break;
           case DiffType.CHANGED:
-            result += color
-              ? `${innerIndent}${colors.red}- ${formatPrimitive(child.oldValue)}${colors.reset}\n` +
-                `${innerIndent}${colors.green}+ ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? (color ? `${colors.gray} (${Math.round(child.meta.similarity * 100)}% similar)${colors.reset}` : ` (${Math.round(child.meta.similarity * 100)}% similar)`) : ''}${colors.reset}`
-              : `${innerIndent}- ${formatPrimitive(child.oldValue)}\n` +
-                `${innerIndent}+ ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? ` (${Math.round(child.meta.similarity * 100)}% similar)` : ''}`;
+            result += renderChangedBlock(
+              child.newValue,
+              child.oldValue,
+              { color, withSimilarity },
+              innerIndent,
+              child.meta?.similarity,
+            );
             visibleItems++;
             break;
         }
@@ -265,7 +296,8 @@ function formatObjectDiff(
         // Only add if there's actual content in the nested structure
         if (nestedContent.trim().length > 2) {
           // More than just '{}' or '[]'
-          result += `${innerIndent}${key}: ${nestedContent}`;
+          result += `${innerIndent}${key}: `;
+          result += nestedContent;
           visibleItems++;
         }
       } else {
@@ -284,11 +316,14 @@ function formatObjectDiff(
             visibleItems++;
             break;
           case DiffType.CHANGED:
-            result += color
-              ? `${innerIndent}${colors.red}- ${key}: ${formatPrimitive(child.oldValue)}${colors.reset}\n` +
-                `${innerIndent}${colors.green}+ ${key}: ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? (color ? `${colors.gray} (${Math.round(child.meta.similarity * 100)}% similar)${colors.reset}` : ` (${Math.round(child.meta.similarity * 100)}% similar)`) : ''}${colors.reset}`
-              : `${innerIndent}- ${key}: ${formatPrimitive(child.oldValue)}\n` +
-                `${innerIndent}+ ${key}: ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? ` (${Math.round(child.meta.similarity * 100)}% similar)` : ''}`;
+            result += renderChangedBlock(
+              child.newValue,
+              child.oldValue,
+              { color, withSimilarity },
+              innerIndent,
+              child.meta?.similarity,
+              key,
+            );
             visibleItems++;
             break;
           case DiffType.UNCHANGED:
