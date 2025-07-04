@@ -28,7 +28,7 @@
     "format": "npm run format:check && npm run format:fix",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
-    "test": "vitest run",
+    "test": "vitest run --reporter=verbose",
     "test:watch": "vitest",
     "examples:basic": "node examples/basic.js",
     "examples:advanced": "node examples/advanced.js",
