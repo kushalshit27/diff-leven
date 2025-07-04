@@ -80,16 +80,16 @@ function formatValue(
           : ` (${similarity}% similar)`;
       }
 
-      // Git-style diff format: -old value followed by +new value
-      const oldLine = useColor
-        ? `${colors.red}- ${oldVal}${colors.reset}`
-        : `- ${oldVal}`;
-
+      // Git-style diff format: +new value followed by -old value
       const newLine = useColor
         ? `${colors.green}+ ${newVal}${similarityInfo}${colors.reset}`
         : `+ ${newVal}${similarityInfo}`;
 
-      return `${oldLine}\n${newLine}`;
+      const oldLine = useColor
+        ? `${colors.red}- ${oldVal}${colors.reset}`
+        : `- ${oldVal}`;
+
+      return `${newLine}\n${oldLine}`;
 
     default:
       value = formatPrimitive(diff.newValue ?? diff.oldValue);
@@ -203,10 +203,10 @@ function formatArrayDiff(
             break;
           case DiffType.CHANGED:
             result += color
-              ? `${innerIndent}${colors.red}- ${formatPrimitive(child.oldValue)}${colors.reset}\n` +
-                `${innerIndent}${colors.green}+ ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? (color ? `${colors.gray} (${Math.round(child.meta.similarity * 100)}% similar)${colors.reset}` : ` (${Math.round(child.meta.similarity * 100)}% similar)`) : ''}${colors.reset}`
-              : `${innerIndent}- ${formatPrimitive(child.oldValue)}\n` +
-                `${innerIndent}+ ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? ` (${Math.round(child.meta.similarity * 100)}% similar)` : ''}`;
+              ? `${innerIndent}${colors.green}+ ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? (color ? `${colors.gray} (${Math.round(child.meta.similarity * 100)}% similar)${colors.reset}` : ` (${Math.round(child.meta.similarity * 100)}% similar)`) : ''}${colors.reset}\n` +
+                `${innerIndent}${colors.red}- ${formatPrimitive(child.oldValue)}${colors.reset}`
+              : `${innerIndent}+ ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? ` (${Math.round(child.meta.similarity * 100)}% similar)` : ''}\n` +
+                `${innerIndent}- ${formatPrimitive(child.oldValue)}`;
             visibleItems++;
             break;
         }
@@ -285,10 +285,10 @@ function formatObjectDiff(
             break;
           case DiffType.CHANGED:
             result += color
-              ? `${innerIndent}${colors.red}- ${key}: ${formatPrimitive(child.oldValue)}${colors.reset}\n` +
-                `${innerIndent}${colors.green}+ ${key}: ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? (color ? `${colors.gray} (${Math.round(child.meta.similarity * 100)}% similar)${colors.reset}` : ` (${Math.round(child.meta.similarity * 100)}% similar)`) : ''}${colors.reset}`
-              : `${innerIndent}- ${key}: ${formatPrimitive(child.oldValue)}\n` +
-                `${innerIndent}+ ${key}: ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? ` (${Math.round(child.meta.similarity * 100)}% similar)` : ''}`;
+              ? `${innerIndent}${colors.green}+ ${key}: ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? (color ? `${colors.gray} (${Math.round(child.meta.similarity * 100)}% similar)${colors.reset}` : ` (${Math.round(child.meta.similarity * 100)}% similar)`) : ''}${colors.reset}\n` +
+                `${innerIndent}${colors.red}- ${key}: ${formatPrimitive(child.oldValue)}${colors.reset}`
+              : `${innerIndent}+ ${key}: ${formatPrimitive(child.newValue)}${child.meta?.similarity !== undefined && withSimilarity ? ` (${Math.round(child.meta.similarity * 100)}% similar)` : ''}\n` +
+                `${innerIndent}- ${key}: ${formatPrimitive(child.oldValue)}`;
             visibleItems++;
             break;
           case DiffType.UNCHANGED:
