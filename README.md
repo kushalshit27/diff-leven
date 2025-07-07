@@ -7,6 +7,8 @@
 [![jsdelivr](https://data.jsdelivr.com/v1/package/npm/diff-leven/badge?style=rounded)](https://www.jsdelivr.com/package/npm/diff-leven)
 ![License](https://img.shields.io/npm/l/diff-leven.svg)
 
+**Try now:** [link](https://kushalshit27.github.io/diff-leven/)
+
 ---
 
 ## ✨ Features
@@ -18,6 +20,7 @@
   - Strings (character-level differences)
   - Numbers, Booleans, and any serializable value
 - **Rich Output Options**:
+
   - Git-style colorized output diff format with clear additions/removals
 
 - **Flexible Configuration**:
