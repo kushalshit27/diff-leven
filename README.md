@@ -20,7 +20,6 @@
   - Strings (character-level differences)
   - Numbers, Booleans, and any serializable value
 - **Rich Output Options**:
-
   - Git-style colorized output diff format with clear additions/removals
 
 - **Flexible Configuration**:
