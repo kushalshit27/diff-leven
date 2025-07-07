@@ -2,6 +2,12 @@
 
 All notable changes to the diff-leven project will be documented in this file.
 
+## [0.3.2] - 2025-07-04
+
+### Changed
+
+- Refactor diff formatting and output order.
+
 ## [0.3.1] - 2025-05-31
 
 ### New
