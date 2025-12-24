@@ -107,8 +107,6 @@ dist
 .temp
 .cache
 .clinerules
-.claude/
-CLAUDE.md
 
 # vitepress build output
 **/.vitepress/dist
@@ -151,3 +149,5 @@ CLAUDE.md
 
 # Ignore mcp test configuration files
 .mcp.json
+.DS_Store
+.github/copilot-instructions.md

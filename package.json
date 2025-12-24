@@ -52,20 +52,20 @@
   },
   "homepage": "https://github.com/kushalshit27/diff-leven#readme",
   "devDependencies": {
-    "eslint": "^9.30.1",
+    "eslint": "^9.39.2",
     "husky": "9.1.7",
-    "prettier": "^3.6.2",
+    "prettier": "^3.7.4",
     "ts-node": "^10.9.2",
-    "tsup": "^8.5.0",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.35.1",
-    "vitest": "^3.2.4"
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.1",
+    "vitest": "^4.0.16"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
-    "leven": "^4.0.0"
+    "leven": "^4.1.0"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.44.1"

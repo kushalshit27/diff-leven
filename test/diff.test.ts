@@ -144,6 +144,22 @@ describe('diff-leven', () => {
 
       expect(result.type).toBe('unchanged');
     });
+
+    test('should respect ignoreValues for arrays of strings', () => {
+      const result = diffRaw(['alpha', 'beta'], ['gamma', 'delta'], {
+        ignoreValues: true,
+      });
+
+      expect(result.type).toBe('unchanged');
+    });
+
+    test('should respect keysOnly for arrays of strings', () => {
+      const result = diffRaw(['left', 'right'], ['up', 'down'], {
+        keysOnly: true,
+      });
+
+      expect(result.type).toBe('unchanged');
+    });
   });
 
   describe('diff()', () => {

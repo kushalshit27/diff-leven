@@ -134,7 +134,7 @@ function compareObjects(
 
 /**
  * Compare two arrays and generate a diff
- * Uses Levenshtein distance for finding optimal matching between array elements
+ * Positional comparison only (no reordering/LCS); string similarity handled per element
  */
 function compareArrays(
   oldArray: SerializableValue[],
@@ -183,40 +183,10 @@ function compareArrays(
     const childPath = [...path, i.toString()];
     const oldValue = oldArray[i];
     const newValue = newArray[i];
-    let childDiff;
 
-    // Special handling for strings - use Levenshtein distance
-    if (typeof oldValue === 'string' && typeof newValue === 'string') {
-      if (oldValue === newValue) {
-        childDiff = {
-          type: DiffType.UNCHANGED,
-          path: childPath,
-          oldValue,
-          newValue,
-        };
-      } else {
-        const distance = leven(oldValue, newValue);
-        const maxLength = Math.max(oldValue.length, newValue.length);
-        const similarityRatio = maxLength > 0 ? 1 - distance / maxLength : 1;
-
-        childDiff = {
-          type: DiffType.CHANGED,
-          path: childPath,
-          oldValue,
-          newValue,
-          meta: {
-            levenDistance: distance,
-            similarity: similarityRatio,
-          },
-        };
-        hasChanges = true;
-      }
-    } else {
-      // For other types
-      childDiff = createDiff(oldValue, newValue, options, childPath);
-      if (childDiff.type !== DiffType.UNCHANGED) {
-        hasChanges = true;
-      }
+    const childDiff = createDiff(oldValue, newValue, options, childPath);
+    if (childDiff.type !== DiffType.UNCHANGED) {
+      hasChanges = true;
     }
 
     children.push(childDiff);
