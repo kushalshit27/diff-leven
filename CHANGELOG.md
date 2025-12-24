@@ -2,6 +2,18 @@
 
 All notable changes to the diff-leven project will be documented in this file.
 
+## [1.0.0] - 2025-12-24
+
+### New
+
+- Stabilized API surface: `diff`, `diffRaw`, and `isDiff` for formatted, raw, and boolean comparisons.
+- Full option set solidified: `color`, `keysOnly`, `full`, `outputKeys`, `ignoreKeys`, `ignoreValues`, and `withSimilarity`.
+- Git-style formatter established as the default output convention (`+ new` then `- old`) with optional similarity display for string changes.
+
+### Fixed
+
+- Array diff delegates element comparison through the core logic so `ignoreValues` and `keysOnly` work for string elements (no spurious changes reported).
+
 ## [0.3.2] - 2025-07-04
 
 ### Changed
