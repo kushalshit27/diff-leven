@@ -16,7 +16,7 @@
 - **Advanced Diff Generation**: Uses the Levenshtein distance algorithm for meaningful diffs
 - **Multiple Data Type Support**:
   - Objects (including nested structures)
-  - Arrays (smart matching by content similarity)
+  - Arrays (positional comparison; no reordering/LCS)
   - Strings (character-level differences)
   - Numbers, Booleans, and any serializable value
 - **Rich Output Options**:
@@ -60,6 +60,8 @@ console.log(diff({ foo: 'bar' }, { foo: 'baz' }));
 ### `diff(a, b, options?)`
 
 Compare two values (strings, objects, arrays, etc.) and return a formatted diff string.
+
+> **Note on arrays:** comparison is positional only (index-by-index). Reordered elements are treated as removals/additions rather than matched by similarity.
 
 #### **Parameters**
 
