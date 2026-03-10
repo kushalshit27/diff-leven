@@ -26,9 +26,7 @@ jobs:
           npm version --no-git-tag-version --allow-same-version "$TAG_NAME"
 
       - name: Clean and install dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm install
+        run: npm install
 
       - name: Build package
         run: npm run build
