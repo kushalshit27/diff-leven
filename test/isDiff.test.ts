@@ -129,4 +129,76 @@ describe('isDiff()', () => {
     obj2.settings.theme = 'light';
     expect(isDiff(obj1, obj2)).toBe(true);
   });
+
+  test('should work with arrays of objects', () => {
+    expect(isDiff([{ a: 1 }, { b: 2 }], [{ a: 1 }, { b: 2 }])).toBe(false);
+    expect(isDiff([{ a: 1 }, { b: 2 }], [{ a: 1 }, { b: 3 }])).toBe(true);
+  });
+
+  test('should return true for array vs object', () => {
+    expect(isDiff([1, 2, 3], { 0: 1, 1: 2, 2: 3 })).toBe(true);
+  });
+
+  test('should detect a newly added top-level key', () => {
+    expect(isDiff({ a: 1 }, { a: 1, logging: { level: 'info' } })).toBe(true);
+  });
+
+  test('should detect change at depth 4', () => {
+    const deep1 = { profile: { contact: { address: { city: 'Anytown' } } } };
+    const deep2 = { profile: { contact: { address: { city: 'Newtown' } } } };
+    expect(isDiff(deep1, deep2)).toBe(true);
+    expect(isDiff(deep1, deep1)).toBe(false);
+  });
+
+  test('should reflect ignoreValues structural detection', () => {
+    expect(
+      isDiff({ a: 1, b: 2 }, { a: 3, b: 4, c: 5 }, { ignoreValues: true }),
+    ).toBe(true);
+    expect(
+      isDiff({ a: 1, b: 2 }, { a: 99, b: 100 }, { ignoreValues: true }),
+    ).toBe(false);
+  });
+
+  test('should return false when key structure matches despite all values changing under keysOnly', () => {
+    expect(
+      isDiff(
+        { name: 'John', email: 'john@x.com', age: 30 },
+        { name: 'Jane', email: 'jane@x.com', age: 25 },
+        { keysOnly: true },
+      ),
+    ).toBe(false);
+  });
+
+  test('should return true when key structure differs under keysOnly', () => {
+    expect(
+      isDiff(
+        { a: 1, b: { c: 2, d: 3 } },
+        { a: 1, b: { c: 2 } },
+        { keysOnly: true },
+      ),
+    ).toBe(true);
+  });
+
+  test('should return false when only a deeply nested ignored key differs', () => {
+    const profile1 = {
+      id: 123,
+      preferences: {
+        theme: 'dark',
+        notifications: { email: true, push: false },
+      },
+      history: [1, 2, 3],
+    };
+    const profile2 = {
+      id: 123,
+      preferences: {
+        theme: 'light',
+        notifications: { email: true, push: false },
+      },
+      history: [1, 2, 3],
+    };
+    expect(isDiff(profile1, profile2, { ignoreKeys: ['theme'] })).toBe(false);
+    expect(
+      isDiff({ ...profile1, id: 999 }, profile2, { ignoreKeys: ['theme'] }),
+    ).toBe(true);
+  });
 });
