@@ -72,6 +72,11 @@ export function createDiff(
     return { type: DiffType.CHANGED, path, oldValue, newValue };
   }
 
+  // Handle type mismatch between array and object
+  if (Array.isArray(oldValue) !== Array.isArray(newValue)) {
+    return { type: DiffType.CHANGED, path, oldValue, newValue };
+  }
+
   // Handle arrays
   if (Array.isArray(oldValue) && Array.isArray(newValue)) {
     return compareArrays(oldValue, newValue, options, path);
@@ -142,54 +147,38 @@ function compareArrays(
   options: DiffOptions,
   path: string[],
 ): DiffResult {
-  // Simple case: arrays of different lengths
-  if (oldArray.length !== newArray.length) {
-    const children: DiffResult[] = [];
-    const maxLength = Math.max(oldArray.length, newArray.length);
-
-    for (let i = 0; i < maxLength; i++) {
-      const childPath = [...path, i.toString()];
-      if (i >= oldArray.length) {
-        children.push({
-          type: DiffType.ADDED,
-          path: childPath,
-          newValue: newArray[i],
-        });
-      } else if (i >= newArray.length) {
-        children.push({
-          type: DiffType.REMOVED,
-          path: childPath,
-          oldValue: oldArray[i],
-        });
-      } else {
-        children.push(createDiff(oldArray[i], newArray[i], options, childPath));
-      }
-    }
-
-    return {
-      type: DiffType.CHANGED,
-      path,
-      oldValue: oldArray,
-      newValue: newArray,
-      children,
-    };
-  }
-
-  // For arrays of primitive values or objects, compare each element
+  const maxLength = Math.max(oldArray.length, newArray.length);
   const children: DiffResult[] = [];
   let hasChanges = false;
 
-  for (let i = 0; i < oldArray.length; i++) {
+  for (let i = 0; i < maxLength; i++) {
     const childPath = [...path, i.toString()];
-    const oldValue = oldArray[i];
-    const newValue = newArray[i];
-
-    const childDiff = createDiff(oldValue, newValue, options, childPath);
-    if (childDiff.type !== DiffType.UNCHANGED) {
+    if (i >= oldArray.length) {
+      children.push({
+        type: DiffType.ADDED,
+        path: childPath,
+        newValue: newArray[i],
+      });
       hasChanges = true;
+    } else if (i >= newArray.length) {
+      children.push({
+        type: DiffType.REMOVED,
+        path: childPath,
+        oldValue: oldArray[i],
+      });
+      hasChanges = true;
+    } else {
+      const childDiff = createDiff(
+        oldArray[i],
+        newArray[i],
+        options,
+        childPath,
+      );
+      if (childDiff.type !== DiffType.UNCHANGED) {
+        hasChanges = true;
+      }
+      children.push(childDiff);
     }
-
-    children.push(childDiff);
   }
 
   if (hasChanges) {

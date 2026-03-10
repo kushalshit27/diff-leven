@@ -62,7 +62,7 @@ function formatValue(
         ? `${colors.red}${prefix} ${value}${colors.reset}`
         : `${prefix} ${value}`;
 
-    case DiffType.CHANGED:
+    case DiffType.CHANGED: {
       const oldVal = formatPrimitive(diff.oldValue);
       const newVal = formatPrimitive(diff.newValue);
 
@@ -82,7 +82,7 @@ function formatValue(
 
       // Git-style diff format: +new value followed by -old value
       const newLine = useColor
-        ? `${colors.green}+ ${newVal}${similarityInfo}${colors.reset}`
+        ? `${colors.green}+ ${newVal}${colors.reset}${similarityInfo}`
         : `+ ${newVal}${similarityInfo}`;
 
       const oldLine = useColor
@@ -90,6 +90,7 @@ function formatValue(
         : `- ${oldVal}`;
 
       return `${newLine}\n${oldLine}`;
+    }
 
     default:
       value = formatPrimitive(diff.newValue ?? diff.oldValue);
@@ -147,7 +148,7 @@ function renderChangedBlock(
 
   const keyPrefix = key ? `${key}: ` : '';
   const newLine = color
-    ? `${indent}${colors.green}+ ${keyPrefix}${formatPrimitive(newValue)}${similarityInfo}${colors.reset}`
+    ? `${indent}${colors.green}+ ${keyPrefix}${formatPrimitive(newValue)}${colors.reset}${similarityInfo}`
     : `${indent}+ ${keyPrefix}${formatPrimitive(newValue)}${similarityInfo}`;
   const oldLine = color
     ? `${indent}${colors.red}- ${keyPrefix}${formatPrimitive(oldValue)}${colors.reset}`
@@ -188,9 +189,8 @@ function formatArrayDiff(
           ? formatArrayDiff(child, options, indent + 2)
           : formatObjectDiff(child, options, indent + 2);
 
-        // Only add if there's actual content
-        if (nestedOutput.trim().length > 2) {
-          // More than just '[]' or '{}'
+        // Only add if there's actual content (more than just '[]' or '{}')
+        if (nestedOutput !== '[]' && nestedOutput !== '{}') {
           if (visibleItems > 0) {
             result += ',\n';
           }
@@ -293,9 +293,8 @@ function formatObjectDiff(
           ? formatArrayDiff(child, options, indent + 2)
           : formatObjectDiff(child, options, indent + 2);
 
-        // Only add if there's actual content in the nested structure
-        if (nestedContent.trim().length > 2) {
-          // More than just '{}' or '[]'
+        // Only add if there's actual content in the nested structure (more than just '{}' or '[]')
+        if (nestedContent !== '{}' && nestedContent !== '[]') {
           result += `${innerIndent}${key}: `;
           result += nestedContent;
           visibleItems++;
@@ -368,7 +367,7 @@ function formatObjectDiff(
 /**
  * Get the prefix for a diff type
  */
-function getPrefix(type: DiffType | string): string {
+function getPrefix(type: DiffType): string {
   switch (type) {
     case DiffType.ADDED:
       return '+';

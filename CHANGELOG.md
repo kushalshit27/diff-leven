@@ -2,6 +2,15 @@
 
 All notable changes to the diff-leven project will be documented in this file.
 
+## [1.0.1] - 2026-03-10
+
+### Fixed
+
+- Array vs. object type mismatch now correctly returns `changed` instead of falling through to object comparison.
+- Unified `compareArrays` into a single loop — removes duplicate logic between equal-length and different-length paths.
+- Similarity info color codes no longer double-wrap the green line in `formatValue` and `renderChangedBlock`; gray similarity text now renders after the green reset.
+- `getPrefix` parameter type narrowed from `DiffType | string` to `DiffType`.
+
 ## [1.0.0] - 2025-12-24
 
 ### New
