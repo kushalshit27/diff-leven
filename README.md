@@ -6,6 +6,7 @@
 [![npm](https://img.shields.io/npm/dm/diff-leven.svg)](https://www.npmjs.com/package/diff-leven)
 [![jsdelivr](https://data.jsdelivr.com/v1/package/npm/diff-leven/badge?style=rounded)](https://www.jsdelivr.com/package/npm/diff-leven)
 ![License](https://img.shields.io/npm/l/diff-leven.svg)
+[<img src="https://devin.ai/assets/deepwiki-badge.png" alt="Ask questions about diff-leven on DeepWiki" height="19"/>](https://deepwiki.com/kushalshit27/diff-leven)
 
 **Try now:** [link](https://kushalshit27.github.io/diff-leven/)
 
