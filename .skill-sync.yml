@@ -1,0 +1,17 @@
+version: 1
+
+skills:
+  - skill: .claude/skills/diff/SKILL.md
+    watch:
+      - src/diff.ts
+      - src/types.ts
+
+  - skill: .claude/skills/formatter/SKILL.md
+    watch:
+      - src/formatter.ts
+      - src/types.ts
+
+  - skill: .claude/skills/sdk/SKILL.md
+    watch:
+      - src/index.ts
+      - src/types.ts
