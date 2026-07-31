@@ -267,4 +267,4 @@ See [`examples/basic.js`](examples/basic.js) for more usage patterns.
 
 MIT © [kushalshit27](LICENSE)
 
-B1
+B2
