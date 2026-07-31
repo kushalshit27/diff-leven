@@ -266,5 +266,3 @@ See [`examples/basic.js`](examples/basic.js) for more usage patterns.
 ## 📄 License
 
 MIT © [kushalshit27](LICENSE)
-
-B2
